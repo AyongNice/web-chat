@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.ayongchat.mapper.ChatMessageMapper">
+
+
+    <insert id="insertMessage" parameterType="com.example.ayongchat.enitiy.Message">
+        insert into chat_message(open_id, friend_id, content_type, content_Status, message, timestamp, message_type)
+        values (#{openId}, #{friendId}, #{contentType}, #{contentStatus}, #{message}, #{timestamp}, #{messageType})
+
+
+    </insert>
+
+    <!--    插入系统消息-->
+    <insert id="insertSystemMessage" parameterType="com.example.ayongchat.enitiy.SystemMessage">
+        insert into system_message (send_id, receive_id, remark)
+        values (#{sendId}, #{receiveId}, #{remark})
+
+    </insert>
+
+    <!--    插入群聊天记录-->
+    <insert id="insertGroupMessage" parameterType="com.example.ayongchat.enitiy.Message">
+        insert into group_chats (id, group_id, sender_id, content_type, message, timestamp)
+        values (#{id}, #{friendId}, #{openId}, #{contentType}, #{message}, #{timestamp})
+
+
+    </insert>
+
+    <!--    聊天记录查询-->
+    <select id="getMessageList" resultType="com.example.ayongchat.enitiy.Message">
+        select id,
+               open_id        as openId,
+               friend_id      as friendId,
+               content_type   as contentType,
+               content_Status as contentStatus,
+               message,
+               timestamp,
+               message_Type   as messageType
+        FROM chat_message
+        WHERE (open_id, friend_id) IN
+              ((#{openId}, #{friendId}), (#{friendId}, #{openId}))
+        order by timestamp
+
+    </select>
+
+    <!--获取当好友聊天消息条数-->
+    <select id="countMessages" resultType="java.lang.Integer">
+        select count(id)
+        FROM chat_message
+        WHERE (open_id, friend_id) IN
+              ((#{openId}, #{friendId}), (#{friendId}, #{openId}))
+
+    </select>
+    <!--获取当好友 系统消息 -->
+    <select id="getSystemMessageList" resultType="com.example.ayongchat.enitiy.SystemMessage">
+        select id,
+               send_id    as sendId,
+               receive_id as receiveId,
+               status
+        from system_message
+        where receive_id = #{receiveId}
+          and status = 0
+    </select>
+
+    <!--获取当前群消息条数-->
+    <select id="countGroupMessages" resultType="java.lang.Integer">
+        select count(id)
+        FROM group_chats
+        where id = #{groupId}
+
+    </select>
+
+    <select id="getGroupMessageList" resultType="com.example.ayongchat.enitiy.Message">
+        select sender_id    as openId,
+               message,
+               content_type as contentType,
+               timestamp
+        from group_chats
+        where group_id = #{groupId}
+        order by timestamp
+    </select>
+
+
+
+</mapper>
+

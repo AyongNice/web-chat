@@ -1,0 +1,50 @@
+server:
+  port: 8066
+
+spring:
+  application:
+    name: Ayong-chat
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ayong-chat?useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 7758521
+  data:
+    redis:
+      port: 19383
+      host: localhost
+  mvc:
+    # 修改静态资源访问前缀
+    static-path-pattern: /image/**
+  web:
+    resources:
+      static-locations: file:/Users/ayong/ayong-code/java/static/
+
+
+
+
+sky:
+  jwt:
+    # 设置jwt签名加密时使用的秘钥
+    admin-secret-key: MzB4cWVhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJhZGJ
+    # 设置jwt过期时间
+    admin-ttl: 7200000
+    # 设置前端传递过来的令牌名称
+    token-name: Authorization
+    # 设置前端传递过来的令牌 类型
+    token-type: header
+
+static:
+  path: /Users/ayong/ayong-code/java/static/
+
+mail:
+  host: pop.163.com
+  port: 465
+  username: ayongnice@163.com
+  password: PXkkK35unApvMb5u
+  properties:
+    mail:
+      smtp:
+        auth: true
+        starttls:
+          enable: true

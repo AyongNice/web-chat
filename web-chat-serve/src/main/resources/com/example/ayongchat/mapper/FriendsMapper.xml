@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.ayongchat.mapper.FriendsMapper">
+
+    <!--    添加好友关系表-->
+    <insert id="addFriends">
+        insert into friend_list(openId, friendId)
+        values (#{openId}, #{friendId}),
+               (#{friendId}, #{openId})
+    </insert>
+
+
+    <!--    添加群聊-->
+    <insert id="addGroup">
+        insert into group_list(id, member_id, leader, join_date)
+        values (#{id}, #{list}, #{leader}, #{joinDate})
+    </insert>
+
+    <!--    处理好友请求-->
+    <update id="handleFriend">
+        update system_message
+        set status = #{handleStatus}
+        where send_id = #{sendId}
+          and receive_id = #{receiveId}
+
+    </update>
+    <update id="updateFriendNote" parameterType="com.example.ayongchat.enitiy.Friends">
+        update friend_list
+        set note = #{note}
+        where openId = #{openId}
+          and friendId = #{friendId}
+    </update>
+
+    <!--    更新群成员信息-->
+    <update id="updataGroupFriend" parameterType="com.example.ayongchat.enitiy.GroupDto">
+        update group_list
+        set member_id = #{list}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFriend">
+        delete
+        from friend_list
+        where (openId, friendId) IN
+              ((#{openId}, #{friendId}), (#{friendId}, #{openId}))
+    </delete>
+
+    <!--查询好友列表-->
+    <select id="getFriendsLists" resultType="com.example.ayongchat.enitiy.Friends">
+        select t1.openId,
+               t1.friendId,
+               u1.avatar,
+               u1.signature,
+               t1.note,
+               u1.username,
+               t1.msgs
+        from friend_list t1,
+             user u1
+        where t1.friendId = u1.id
+          and t1.openId = #{openId}
+
+
+    </select>
+
+    <!--   搜索好友-->
+    <select id="searchFriends" resultType="com.example.ayongchat.enitiy.Friends">
+
+        select distinct user.id as openId,
+                        name,
+                        phone,
+                        telephone,
+                        address,
+                        enabled,
+                        username,
+                        password,
+                        avatar,
+                        remark,
+                        roleId,
+                        signature
+        from user,
+             friend_list as fl
+        where user.id != #{id}
+          and fl.openId = #{id}
+          and fl.friendId != user.id
+          and (phone = #{friends}
+            or username = #{friends}
+            or name = #{friends})
+    </select>
+
+    <!--    查询系统消息-->
+    <select id="findAddRecords" resultType="com.example.ayongchat.enitiy.Friends">
+        select u.id as openId,
+               u.remark,
+               u.avatar,
+               u.phone,
+               u.telephone,
+               u.address,
+               u.username,
+               u.signature,
+               s.status
+        from system_message as s,
+             user as u
+        where s.receive_id = #{receiveId}
+          and s.send_id = u.id
+          and s.status = 0
+    </select>
+    <select id="getGroupInfo" resultType="com.example.ayongchat.enitiy.GroupDto">
+        select id,
+               member_id as list,
+               leader,
+               name      as username,
+               join_date as joinDate
+        from group_list
+        where id = #{groupId}
+    </select>
+    <select id="getGroupList" resultType="com.example.ayongchat.enitiy.GroupDto">
+        select id,
+               member_id as list,
+               leader,
+               name      as username,
+               join_date as joinDate
+        from group_list
+        where FIND_IN_SET(#{openId}, member_id) &gt; 0;
+
+
+    </select>
+    <select id="getGroupMember" resultType="com.example.ayongchat.enitiy.Friends">
+        select g1.id,
+               user.id as openId,
+               member_id,
+               username,
+               avatar
+        from group_list g1
+                 join user on FIND_IN_SET(user.id, member_id) &gt; 0
+        where g1.id = #{groupId}
+
+    </select>
+
+</mapper>

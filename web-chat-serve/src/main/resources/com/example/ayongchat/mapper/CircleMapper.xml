@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.ayongchat.mapper.CircleMapper">
+
+    <!--新增朋友圈动态-->
+    <insert id="publishCircle" parameterType="com.example.ayongchat.enitiy.CircleDto">
+        insert into friend_circle(id, user_id, message, user_name, upload_list, created_at, bucket_path)
+        values (#{id}, #{userId}, #{message}, #{userName}, #{uploadList}, #{createdAt}, #{bucketPath})
+    </insert>
+
+
+    <!--    查询朋友圈信息-->
+    <select id="findByMeCircle" resultType="com.example.ayongchat.enitiy.CircleDto">
+        SELECT fc.id,
+               fc.user_id     as userId,
+               fc.message,
+               fc.user_name   as userName,
+               fc.upload_list as imageList,
+               fc.created_at  as createdAt,
+               fc.bucket_path as bucketPath,
+               us.avatar
+        FROM friend_circle AS fc
+                 INNER JOIN
+             user AS us ON fc.user_id = us.id
+        WHERE fc.user_id IN (SELECT friendId
+                             FROM friend_list
+                             WHERE openId = #{userId})
+           OR fc.user_id = #{userId}
+        ORDER BY fc.created_at DESC
+    </select>
+
+    <!--    点赞-->
+    <insert id="like">
+        insert into like_circle(id, user_id, circle_id, avatar, created_at)
+        values (#{id}, #{userId}, #{circleId}, #{avatar}, #{createdAt})
+    </insert>
+
+
+    <delete id="deleteLike">
+        delete
+        from like_circle
+        where id = #{id}
+    </delete>
+
+    <!--    根据 circleList 查询多个 点赞信息-->
+    <select id="findLike" resultType="com.example.ayongchat.enitiy.FindLikeDto">
+        select id,
+        user_id as userId,
+        avatar as avatar,
+        circle_id as circleId,
+        created_at as createdAt
+        from like_circle
+        where like_circle.circle_id in   <foreach item="id" index="index" collection="ids" open="(" separator=","
+                                                  close=")">
+        #{id}
+    </foreach>;
+
+    </select>
+
+    <!--    朋友圈评论-->
+    <insert id="comment" parameterType="com.example.ayongchat.enitiy.CommentCircle">
+        insert into friend_circle_comment(id,
+                                          circle_id,
+                                          user_id,
+                                          user_name,
+                                          comment_message,
+                                          receiver_id,
+                                          receiver_name,
+                                          created_at)
+        values (#{id},
+                #{circleId},
+                #{userId},
+                #{userName},
+                #{commentMessage},
+                #{receiverId},
+                #{receiverName},
+                #{createdAt})
+
+    </insert>
+
+    <!--    评论查询-->
+    <select id="findComment" resultType="com.example.ayongchat.enitiy.CommentCircle">
+        select id,
+        circle_id as circleId,
+        user_id as userId,
+        user_name as userName,
+        comment_message as commentMessage,
+        receiver_id as receiverId,
+        receiver_name as receiverName,
+        created_at as createdAt
+        from friend_circle_comment
+        where circle_id in   <foreach item="id" index="index" collection="list" open="(" separator=","
+                                      close=")">
+        #{id}
+    </foreach>;
+
+    </select>
+
+
+</mapper>
