@@ -2,7 +2,7 @@
   <div>
     <div class="user_content">
       <div>
-        <img :src="this.$ls.get('userInfos').avatar" />
+        <img :src="userInfos.avatar" />
         <van-icon
           class="user_content_add_icon"
           name="add-o"
@@ -77,7 +77,8 @@ export default {
         { name: "添加好友", value: "add" },
         { name: "匹配聊天", value: "matching" }
       ],
-      friendList: []
+      friendList: [],
+      userInfos: {}
     };
   },
   computed: {
@@ -106,6 +107,9 @@ export default {
     }
   },
   mounted() {
+    this.userInfos = JSON.parse(
+      window.sessionStorage.getItem("userInfos") || "{}"
+    );
     //			console.log(this.$ls.get("userInfos").avatar)
     Toast.loading({
       mask: true,
