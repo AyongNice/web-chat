@@ -1,5 +1,7 @@
 <template>
-  <div id="chatBox">
+  <!-- 禁用鼠标右键 -->
+
+  <div id="chatBox" oncontextmenu="return false;">
     <!--
         	作者：ayongnice@163.com
         	时间：2024-10-05
@@ -121,35 +123,75 @@
         </div>
       </div>
     </van-pull-refresh>
+    <van-loading
+      v-if="recordingLoading"
+      vertical
+      color="#0094ff"
+      size="50px"
+      style="position: fixed;bottom: 150px;left: 50%;transform: translateX(-50%);"
+    >
+      <template #icon>
+        <van-icon name="star-o" size="30" />
+      </template>
+      加载中...
+    </van-loading>
     <!--
         	作者：ayongnice@163.com
         	时间：2020-10-16
         	描述：底部发送消息部分
         -->
-    <div
-      style="width: 100%;position: fixed; bottom: 0px; height: 60px; background: #EEF0F4;"
-    >
+    <div class="bottom-box">
       <div style="display: flex;align-items: center;">
-        <div style="width: 15%;">
-          <van-icon name="smile-o" size="25" style="line-height: 37px;" />
-        </div>
+        <van-icon
+          name="comment-o"
+          size="25"
+          v-if="chatIconType === 'audio'"
+          style="line-height: 37px;margin-right:  8px;"
+          @click="() => (chatIconType = 'txt')"
+        />
+        <van-icon
+          v-if="chatIconType === 'txt'"
+          name="volume-o"
+          size="25"
+          @click="() => (chatIconType = 'audio')"
+          style="line-height: 37px;margin-right:  8px;"
+        />
         <input
+          v-if="chatIconType === 'txt'"
           v-model="message"
           v-myfocus
-          style="width: 100%; border: 0px; background: #FFFFFF; height: 28px; font-size: 16px;"
+          style=" border: 0px; background: #FFFFFF; height: 28px; font-size: 16px;flex:1"
         />
-        <div style="width: 15%;" @click="sendmessage()">
-          <span
-            style="display: flex; justify-content: center; line-height: 60px;"
-            >发送</span
-          >
-        </div>
-        <div style="width: 15%;">
+        <button
+          @mousedown="startRecording"
+          @mouseup="stopAndSend"
+          @touchstart="startRecording"
+          @touchend="stopAndSend"
+          style=" border: none; background: #eae1e1; height: 28px; font-size: 16px;flex:1;text-align: center;border-radius: 8px;"
+          v-if="chatIconType === 'audio'"
+        >
+          按住说话
+        </button>
+
+        <div style=" display: flex;align-items: center;">
           <van-icon
+            name="smile-o"
+            size="25"
+            style="line-height: 58px;margin: 0  8px;"
+          />
+
+          <van-button
+            v-if="message"
+            @click="sendmessage()"
+            style="display: flex; justify-content: center; line-height: 60px;"
+            >发送</van-button
+          >
+          <van-icon
+            v-else
             name="add-o"
             size="25"
             @click="onOptions"
-            style="line-height: 37px;"
+            style="line-height: 58px;"
           />
         </div>
       </div>
@@ -182,7 +224,14 @@ export default {
       list: [],
       stompClient: {},
       loading: false,
-      options: false
+      options: false,
+      chatIconType: "txt",
+      isRecording: false, // 是否正在录制
+      mediaRecorder: null, // MediaRecorder 实例
+      audioChunks: [], // 存储录制的音频片段
+      audioBlob: null, // 录制完成后的音频 Blob 对象
+      audioUrl: null, // 预览音频的 URL
+      recordingLoading: false
     };
   },
   computed: {},
@@ -254,7 +303,6 @@ export default {
             ? Toast("你已被提走")
             : Toast("你已被删除");
         }
-        debugger;
         /**
          *     private String openId;
     private String friendId;
@@ -310,6 +358,75 @@ export default {
       this.loading = true;
       this.page++;
       this.init();
+    },
+    async startRecording() {
+      console.log("开始录音");
+      this.recordingLoading = true;
+      try {
+        // 请求麦克风权限
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true
+        });
+
+        // 创建 MediaRecorder 实例
+        this.mediaRecorder = new MediaRecorder(stream);
+
+        // 当有数据可用时，将数据片段添加到 audioChunks 数组中
+        this.mediaRecorder.ondataavailable = event => {
+          if (event.data.size > 0) {
+            this.audioChunks.push(event.data);
+          }
+        };
+
+        // 当录制停止时，生成 Blob 对象并创建预览 URL
+        this.mediaRecorder.onstop = () => {
+          this.audioBlob = new Blob(this.audioChunks, { type: "audio/webm" });
+          this.audioUrl = URL.createObjectURL(this.audioBlob);
+          this.audioChunks = []; // 清空音频片段数组
+        };
+
+        // 开始录制
+        this.mediaRecorder.start();
+        this.isRecording = true; // 更新录制状态
+      } catch (error) {
+        console.error("无法获取麦克风权限", error);
+      }
+    },
+    stopAndSend() {
+      this.mediaRecorder.stop();
+      this.recordingLoading = false;
+
+      if (this.mediaRecorder) {
+        // 停止录制
+
+        this.isRecording = false; // 更新录制状态
+
+        // 如果有录制的音频，发送到服务器
+        if (this.audioBlob) {
+          this.sendAudio();
+        }
+      }
+    },
+    async sendAudio() {
+      if (this.audioBlob) {
+        console.log("上传录音");
+
+        // 创建 FormData 对象，用于发送音频文件
+        const formData = new FormData();
+        formData.append("file", this.audioBlob, `${+new Date()}recording.webm`);
+
+        try {
+          // 发送 POST 请求到服务器
+          this.$Request_post(
+            this.$AXIOS_URL + "/api/recording/upload",
+            formData
+          ).then(res => {
+            this.sendmessage(res.data, "audio");
+          });
+        } catch (error) {
+          console.error("录音上传失败", error);
+        }
+      }
     }
   }
 };
@@ -358,5 +475,15 @@ audio {
 .custom-audio audio::-webkit-media-controls-time-remaining-display {
   font-size: 14px;
   color: #6c757d;
+}
+
+.bottom-box {
+  width: 100%;
+  position: fixed;
+  bottom: 0px;
+  height: 60px;
+  background: #eef0f4;
+  padding: 0 8px;
+  box-sizing: border-box;
 }
 </style>
