@@ -1,5 +1,5 @@
 <template>
-  <div  id="app">
+  <div id="app">
     <router-view></router-view>
   </div>
 </template>
@@ -36,8 +36,3 @@ export default {
   justify-content: space-between;
 }
 </style>
-
-
-
-// WEBPACK FOOTER //
-// App.vue

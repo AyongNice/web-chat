@@ -1,220 +1,224 @@
 <template>
-  <!-- 禁用鼠标右键 -->
-
-  <div id="chatBox" oncontextmenu="return false;">
-    <!--
-        	作者：ayongnice@163.com
-        	时间：2024-10-05
-        	描述：头部导航栏
-        -->
-    <div
-      style="height: 44px;width: 100%; background:#FFFFFF; position: fixed; z-index: 999;"
-    >
-      <van-row>
-        <van-col span="4">
-          <van-icon
-            style="margin: 10px; "
-            size="24px"
-            name="arrow-left"
-            @click="() => this.$router.push({ name: 'home' })"
-          />
-        </van-col>
-        <van-col span="16">
-          <span
-            style="font-size: 16px; display: flex; justify-content: center; line-height: 44px;"
-          >
-            {{
-              ChatContent.note == null ? ChatContent.username : ChatContent.note
-            }}
-          </span>
-        </van-col>
-        <van-col span="4">
-          <van-icon
-            style="display: flex; justify-content: center; line-height: 44px;"
-            size="20"
-            name="ellipsis"
-          />
-        </van-col>
-      </van-row>
-    </div>
-    <div style="height: 44px;"></div>
-
-    <!--
-        	作者：ayongnice@163.com
-        	时间：2020-10-17
-        	描述：聊天记录
-        -->
-
-    <van-pull-refresh
-      style="height: 80vh;"
-      v-model="loading"
+  <div>
+    <!-- <van-pull-refresh
+      style="width:100vw;height:80vh"
+      v-model="isLoading"
       @refresh="onRefresh"
     >
+      <p>刷新次数: {{ count }}</p>
+    </van-pull-refresh> -->
+    <div id="chatBox1" oncontextmenu="return false;">
       <div
-        style="width: 92%; margin-left: 4%; display: flex;justify-content: space-between;"
-        v-for="(item, index) in list"
-        :key="index"
+        style="height: 44px;width: 100%; background:#FFFFFF; position: fixed; z-index: 999;"
       >
-        <div style="width: 100%; margin-top: 14px;">
-          <div style="display: flex;" v-if="userInfos.openId != item.openId">
-            <img style="width: 35px; height: 35px;" :src="ChatContent.avatar" />
-            <div
-              style="background: #ffffff; padding: 10px; margin-left: 10px; border-radius: 8px;"
-              v-if="item.contentType == 'txt'"
+        <van-row>
+          <van-col span="4">
+            <van-icon
+              style="margin: 10px; "
+              size="24px"
+              name="arrow-left"
+              @click="() => this.$router.push({ name: 'home' })"
+            />
+          </van-col>
+          <van-col span="16">
+            <span
+              style="font-size: 16px; display: flex; justify-content: center; line-height: 44px;"
             >
-              {{ item.message }}
-            </div>
-            <!--图片-->
-            <div
-              style="background: #ffffff; padding: 10px; margin-left: 10px; border-radius: 8px;"
-              v-if="item.contentType == 'img'"
-            >
-              <img
-                :id="index"
-                :stop.src="getImageDom(item)"
-                style="width: 140px; height: auto;"
-              />
-              <!--<img :id="index"  :src="$Request_get('http://192.168.16.95:3000/v1/api/chat/findFiles/'+item.message).then(res=>{window.document.getElementById(index).src = res.data})" style="width: 140px; height: auto;"/>-->
-            </div>
-            <div
-              style=" margin-left: 10px; border-radius: 8px;"
-              v-if="item.contentType == 'audio'"
-            >
-              <audio controls controlsList="nodownload">
-                <source :src="getImageDom(item)" type="audio/mpeg" />
-                您的浏览器不支持 audio 元素。
-              </audio>
-            </div>
-          </div>
-          <div style="display: flex; margin-top: 10px; float: right;" v-else>
-            <div
-              style="float: right; background: #ffffff; margin-right: 10px; padding: 10px; border-radius: 8px;"
-              v-if="item.contentType == 'txt'"
-            >
-              {{ item.message }}
-            </div>
-            <!--图片-->
-            <div
-              style="float: right; background: #ffffff; margin-right: 10px; padding: 10px; border-radius: 8px;"
-              v-if="item.contentType == 'img'"
-            >
-              <!--<img :id="index" :stop.src="getImageDom(index,item.message)" style="width: 140px; height: auto;"/>-->
-              <img
-                :src="getImageDom(item)"
-                style="width: 140px; height: auto;"
-              />
-            </div>
-            <div
-              style=" margin-left: 10px; border-radius: 8px;"
-              v-if="item.contentType == 'audio'"
-            >
-              <audio controls controlsList="nodownload">
-                <source :src="getImageDom(item)" type="audio/mpeg" />
-                您的浏览器不支持 audio 元素。
-              </audio>
-            </div>
-            <div style="float: right;">
-              <img
-                style="float: right; width: 35px; height: 35px;"
-                :src="avatar"
-              />
-            </div>
-          </div>
-        </div>
+              {{
+                ChatContent.note == null
+                  ? ChatContent.username
+                  : ChatContent.note
+              }}
+            </span>
+          </van-col>
+          <van-col span="4">
+            <van-icon
+              style="display: flex; justify-content: center; line-height: 44px;"
+              size="20"
+              name="ellipsis"
+            />
+          </van-col>
+        </van-row>
       </div>
-    </van-pull-refresh>
-    <van-loading
-      v-if="recordingLoading"
-      vertical
-      color="#0094ff"
-      size="50px"
-      style="position: fixed;bottom: 150px;left: 50%;transform: translateX(-50%);"
-    >
-      <template #icon>
-        <van-icon name="star-o" size="30" />
-      </template>
-      加载中...
-    </van-loading>
-    <!--
-        	作者：ayongnice@163.com
-        	时间：2020-10-16
-        	描述：底部发送消息部分
-        -->
-    <div class="bottom-box">
-      <div style="display: flex;align-items: center;">
-        <van-icon
-          name="comment-o"
-          size="25"
-          v-if="chatIconType === 'audio'"
-          style="line-height: 37px;margin-right:  8px;"
-          @click="() => (chatIconType = 'txt')"
-        />
-        <van-icon
-          v-if="chatIconType === 'txt'"
-          name="volume-o"
-          size="25"
-          @click="() => (chatIconType = 'audio')"
-          style="line-height: 37px;margin-right:  8px;"
-        />
-        <input
-          v-if="chatIconType === 'txt'"
-          v-model="message"
-          v-myfocus
-          style=" border: 0px; background: #FFFFFF; height: 28px; font-size: 16px;flex:1"
-        />
-        <button
-          @mousedown="startRecording"
-          @mouseup="stopAndSend"
-          @touchstart="startRecording"
-          @touchend="stopAndSend"
-          style=" border: none; background: #eae1e1; height: 28px; font-size: 16px;flex:1;text-align: center;border-radius: 8px;"
-          v-if="chatIconType === 'audio'"
+      <van-pull-refresh
+        style="width:100vw;height:89vh;padding-top: 30px;overflow-y: auto;"
+        v-model="loading"
+        @refresh="onRefresh"
+      >
+        <div
+          style="width: 92%; margin-left: 4%; display: flex;justify-content: space-between;"
+          v-for="(item, index) in list"
+          :key="index"
         >
-          按住说话
-        </button>
+          <div style="width: 100%; margin-top: 14px;">
+            <div style="display: flex;" v-if="userInfos.openId != item.openId">
+              <img
+                style="width: 35px; height: 35px;"
+                :src="ChatContent.avatar"
+              />
+              <div
+                style="background: #ffffff; padding: 10px; margin-left: 10px; border-radius: 8px;"
+                v-if="item.contentType == 'txt'"
+              >
+                {{ item.message }}
+              </div>
+              <div
+                style="background: #ffffff; padding: 10px; margin-left: 10px; border-radius: 8px;"
+                v-if="item.contentType == 'img'"
+              >
+                <img
+                  :id="index"
+                  :src="getImageDom(item)"
+                  style="width: 140px; height: auto;"
+                />
+              </div>
+              <div
+                style=" margin-left: 10px; border-radius: 8px;"
+                v-if="item.contentType == 'audio'"
+              >
+                <audio controls controlsList="nodownload">
+                  <source :src="getImageDom(item)" type="audio/mpeg" />
+                  您的浏览器不支持 audio 元素。
+                </audio>
+              </div>
+            </div>
+            <div style="display: flex; margin-top: 10px; float: right;" v-else>
+              <div
+                style="float: right; background: #ffffff; margin-right: 10px; padding: 10px; border-radius: 8px;"
+                v-if="item.contentType == 'txt'"
+              >
+                {{ item.message }}
+              </div>
+              <div
+                style="float: right; background: #ffffff; margin-right: 10px; padding: 10px; border-radius: 8px;"
+                v-if="item.contentType == 'img'"
+              >
+                <img
+                  :src="getImageDom(item)"
+                  style="width: 140px; height: auto;"
+                />
+              </div>
+              <div
+                style=" margin-left: 10px; border-radius: 8px;"
+                v-if="item.contentType == 'audio'"
+              >
+                <audio controls controlsList="nodownload">
+                  <source :src="getImageDom(item)" type="audio/mpeg" />
+                  您的浏览器不支持 audio 元素。
+                </audio>
+              </div>
+              <div style="float: right;">
+                <img
+                  style="float: right; width: 35px; height: 35px;"
+                  :src="avatar"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </van-pull-refresh>
 
-        <div style=" display: flex;align-items: center;">
+      <van-loading
+        v-if="recordingLoading"
+        vertical
+        color="#0094ff"
+        size="50px"
+        style="position: fixed;bottom: 150px;left: 50%;transform: translateX(-50%);"
+      >
+        <template #icon>
+          <van-icon name="star-o" size="30" />
+        </template>
+        加载中...
+      </van-loading>
+
+      <div class="bottom-box">
+        <div style="display: flex;align-items: center;">
           <van-icon
-            name="smile-o"
+            name="comment-o"
             size="25"
-            style="line-height: 58px;margin: 0  8px;"
+            v-if="chatIconType === 'audio'"
+            style="line-height: 37px;margin-right:  8px;"
+            @click="() => (chatIconType = 'txt')"
           />
-
-          <van-button
-            v-if="message"
-            @click="sendmessage()"
-            style="display: flex; justify-content: center; line-height: 60px;"
-            >发送</van-button
+          <van-icon
+            v-if="chatIconType === 'txt'"
+            name="volume-o"
+            size="25"
+            @click="() => (chatIconType = 'audio')"
+            style="line-height: 37px;margin-right:  8px;"
+          />
+          <input
+            v-if="chatIconType === 'txt'"
+            v-model="message"
+            v-myfocus
+            style=" border: 0px; background: #FFFFFF; height: 28px; font-size: 16px;flex:1"
+          />
+          <button
+            @mousedown="startRecording"
+            @mouseup="stopAndSend"
+            @touchstart="startRecording"
+            @touchend="stopAndSend"
+            style=" border: none; background: #eae1e1; height: 28px; font-size: 16px;flex:1;text-align: center;border-radius: 8px;"
+            v-if="chatIconType === 'audio'"
           >
-          <van-icon
-            v-else
-            name="add-o"
-            size="25"
-            @click="onOptions"
-            style="line-height: 58px;"
-          />
+            按住说话
+          </button>
+
+          <div style=" display: flex;align-items: center;">
+            <van-icon
+              name="smile-o"
+              size="25"
+              @click="showMoji = !showMoji"
+              style="line-height: 58px;margin: 0  8px;"
+            />
+
+            <van-button
+              v-if="message"
+              @click="sendMessage()"
+              style="display: flex; justify-content: center; line-height: 60px;"
+              >发送</van-button
+            >
+            <van-icon
+              v-else
+              name="add-o"
+              size="25"
+              @click="onOptions"
+              style="line-height: 58px;"
+            />
+          </div>
         </div>
       </div>
+      <MessageBox v-if="options" @afterRead="sendMessage" />
+      <MojiPicker
+        v-show="showMoji"
+        @selectEmoji="selectEmoji"
+        @sendMessage="sendMessage"
+      />
     </div>
-    <MessageBox v-if="options" @afterRead="sendmessage" />
   </div>
 </template>
 
 <script>
 import { message, baseFileUrl } from "@/utils/utils";
-import { Uploader, Toast } from "vant";
+import * as aa from "vant";
 import SockJS from "sockjs-client";
 import * as Stomp from "stompjs";
 import MessageBox from "./components/message-box.vue";
+import MojiPicker from "./components/moji-picker.vue";
+console.log(aa);
 export default {
   name: "chat_room",
   components: {
-    Uploader,
-    Toast,
-    MessageBox
+    // Uploader,
+    // Toast,
+    MessageBox,
+    MojiPicker
+    // PullRefresh: aa.PullRefresh
   },
   data() {
     return {
+      count: 0,
+      isLoading: false,
       message: "",
       avatar: "",
       userInfos: {},
@@ -223,7 +227,7 @@ export default {
       ChatContent: this.$store.state.That_Chat,
       list: [],
       stompClient: {},
-      loading: false,
+      loading: true,
       options: false,
       chatIconType: "txt",
       isRecording: false, // 是否正在录制
@@ -231,10 +235,10 @@ export default {
       audioChunks: [], // 存储录制的音频片段
       audioBlob: null, // 录制完成后的音频 Blob 对象
       audioUrl: null, // 预览音频的 URL
-      recordingLoading: false
+      recordingLoading: false,
+      showMoji: false
     };
   },
-  computed: {},
   mounted() {
     this.userInfos = JSON.parse(
       window.sessionStorage.getItem("userInfos") || "{}"
@@ -251,8 +255,6 @@ export default {
       this.stompClient.subscribe(
         `/broadcast/${this.ChatContent.openId}/queue/messages`,
         message => {
-          console.log("Received: " + message.body);
-
           const body = JSON.parse(message.body);
           if (body.messageType === "remove") {
             this.removeFlag = true;
@@ -264,22 +266,9 @@ export default {
       );
     });
   },
-  sockets: {
-    // cllback_sendMessage(data) {
-    //   console.log(data);
-    //   this.ChatContent.messages.push(data.data);
-    // },
-    // get_sendMessage_message(data) {
-    //   console.log(data);
-    //   this.ChatContent.messages.push(data);
-    // }
-  },
-  updated() {
-    this.scrollToBottom();
-  },
+
   methods: {
     getImageDom(data) {
-      console.log(data);
       return baseFileUrl + data.message;
     },
     onOptions() {
@@ -292,11 +281,11 @@ export default {
         size: this.size,
         friendId: this.ChatContent.friendId
       }).then(({ data }) => {
-        this.list = data.list;
+        this.list = [...data.list, ...this.list];
         this.loading = false;
       });
     },
-    sendmessage(message = this.message, contentType = "txt") {
+    sendMessage(message = this.message, contentType = "txt") {
       if (message != "") {
         if (this.removeFlag) {
           return this.$route.query.groupId
@@ -324,7 +313,6 @@ export default {
         this.stompClient.send("/app/sendMessage", {}, JSON.stringify(data));
         this.message = "";
         this.list.push(data);
-        console.log(this.list);
         this.scrollToBottom();
       } else {
         Toast("发送消息不可为空");
@@ -347,6 +335,13 @@ export default {
             document.documentElement.scrollHeight || document.body.scrollHeight;
       });
     },
+    /**
+     * 表情包selectEmoji
+     */
+    selectEmoji(data) {
+      this.message += data;
+    },
+
     selectImage() {
       var data = document.getElementById("uploads").click();
     },
@@ -421,7 +416,7 @@ export default {
             this.$AXIOS_URL + "/api/recording/upload",
             formData
           ).then(res => {
-            this.sendmessage(res.data, "audio");
+            this.sendMessage(res.data, "audio");
           });
         } catch (error) {
           console.error("录音上传失败", error);

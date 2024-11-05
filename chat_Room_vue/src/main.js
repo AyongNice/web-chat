@@ -3,8 +3,6 @@
 import Vue from "vue";
 import App from "./App";
 import router from "./router";
-// const Vue = require("vue");
-console.log(Vue);
 const Vant = require("vant");
 //require('vant/lib/index.css')
 const Axios = require("axios");
@@ -19,10 +17,8 @@ const moment = require("moment");
 // import moment from 'moment';
 // import 'moment/locale/zh-cn';
 // import io from 'socket.io-client';
-import VueNativeSock from "vue-native-websocket";
 
 import store from "./store/index.js";
-import VueSocketIO from "vue-socket.io";
 // import SocketIO from 'socket.io-client';
 
 
