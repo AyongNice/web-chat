@@ -36,7 +36,7 @@ public class ChatServiceImpl implements ChatService {
      * @param message
      */
     public void saveMessage(Message message) {
-
+        message.setId(Long.valueOf(IdUtil.getSnowflakeNextIdStr()));
         chatMessageRepository.insertMessage(message);
     }
 
@@ -78,6 +78,7 @@ public class ChatServiceImpl implements ChatService {
 
         // 获取总记录数
         Integer totalCount = chatMessageRepository.countGroupMessages(recordDto.getFriendId());
+
 
         // 计算总页数
         int totalPages = (int) Math.ceil((double) totalCount / recordDto.getSize());

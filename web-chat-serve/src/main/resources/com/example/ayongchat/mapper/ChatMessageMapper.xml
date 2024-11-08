@@ -6,8 +6,9 @@
 
 
     <insert id="insertMessage" parameterType="com.example.ayongchat.enitiy.Message">
-        insert into chat_message(open_id, friend_id, content_type, content_Status, message, timestamp, message_type)
-        values (#{openId}, #{friendId}, #{contentType}, #{contentStatus}, #{message}, #{timestamp}, #{messageType})
+        insert into chat_message(id, open_id, friend_id, content_type, content_Status, message, timestamp, message_type)
+        values (#{id}, #{openId}, #{friendId}, #{contentType}, #{contentStatus}, #{message}, #{timestamp},
+                #{messageType})
 
 
     </insert>
@@ -67,7 +68,7 @@
     <select id="countGroupMessages" resultType="java.lang.Integer">
         select count(id)
         FROM group_chats
-        where id = #{groupId}
+        where group_id = #{groupId}
 
     </select>
 
@@ -78,9 +79,8 @@
                timestamp
         from group_chats
         where group_id = #{groupId}
-        order by timestamp
+        order by CONVERT(timestamp, SIGNED)
     </select>
-
 
 
 </mapper>
