@@ -1,5 +1,5 @@
 <template>
-  <div style="position: relative;bottom: 52px;">
+  <div style="position: fixed;bottom: 52px;width: 100%;">
     <v-emoji-picker
       @changeCategory="onCategoryChange"
       style="width: 100%;"
@@ -20,6 +20,15 @@
 import { baseFileUrl } from "@/utils/utils";
 
 export default {
+  props: {
+    /**
+     * 是否显示表情包
+     */
+    showListMojiPackage: {
+      type: Boolean,
+      default: true
+    }
+  },
   data() {
     return {
       selectedEmoji: "",
@@ -30,6 +39,7 @@ export default {
   },
 
   mounted() {
+    if (!this.showListMojiPackage) return;
     this.$Request_post(this.$AXIOS_URL + "/api/menes/getMenesList").then(
       ({ data }) => {
         this.listMojiPackage = data;

@@ -35,4 +35,12 @@ export default {
   display: flex;
   justify-content: space-between;
 }
+
+.add-group {
+  width: 100%;
+  position: fixed;
+  bottom: 70px;
+  display: flex;
+  justify-content: space-around;
+}
 </style>

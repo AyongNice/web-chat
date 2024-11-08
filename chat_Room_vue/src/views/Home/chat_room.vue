@@ -7,7 +7,11 @@
     >
       <p>刷新次数: {{ count }}</p>
     </van-pull-refresh> -->
-    <div id="chatBox1" oncontextmenu="return false;">
+    <div
+      id="chatBox"
+      @keydown.enter="sendMessage()"
+      oncontextmenu="return false;"
+    >
       <div
         style="height: 44px;width: 100%; background:#FFFFFF; position: fixed; z-index: 999;"
       >
@@ -24,18 +28,16 @@
             <span
               style="font-size: 16px; display: flex; justify-content: center; line-height: 44px;"
             >
-              {{
-                ChatContent.note == null
-                  ? ChatContent.username
-                  : ChatContent.note
-              }}
+              {{ ChatContent.username }}
             </span>
           </van-col>
+
           <van-col span="4">
             <van-icon
               style="display: flex; justify-content: center; line-height: 44px;"
               size="20"
               name="ellipsis"
+              @click="onInfo"
             />
           </van-col>
         </van-row>
@@ -52,10 +54,20 @@
         >
           <div style="width: 100%; margin-top: 14px;">
             <div style="display: flex;" v-if="userInfos.openId != item.openId">
-              <img
+              <van-image
                 style="width: 35px; height: 35px;"
-                :src="ChatContent.avatar"
-              />
+                :src="
+                  $route.query.groupId
+                    ? groupUserMap[item.openId] &&
+                      groupUserMap[item.openId].avatar
+                    : ChatContent.avatar
+                "
+              >
+                <template slot="loading">
+                  人已不在
+                </template>
+              </van-image>
+
               <div
                 style="background: #ffffff; padding: 10px; margin-left: 10px; border-radius: 8px;"
                 v-if="item.contentType == 'txt'"
@@ -194,23 +206,30 @@
         @selectEmoji="selectEmoji"
         @sendMessage="sendMessage"
       />
+      <van-action-sheet
+        v-model="actionSheet_Show"
+        :actions="actions"
+        cancel-text="取消"
+        close-on-click-action
+        @cancel="onCancel"
+        @select="selectOption"
+      />
     </div>
   </div>
 </template>
 
 <script>
 import { message, baseFileUrl } from "@/utils/utils";
-import * as aa from "vant";
 import SockJS from "sockjs-client";
 import * as Stomp from "stompjs";
 import MessageBox from "./components/message-box.vue";
 import MojiPicker from "./components/moji-picker.vue";
-console.log(aa);
+import {Toast} from 'vant'
 export default {
   name: "chat_room",
   components: {
     // Uploader,
-    // Toast,
+    Toast,
     MessageBox,
     MojiPicker
     // PullRefresh: aa.PullRefresh
@@ -236,7 +255,14 @@ export default {
       audioBlob: null, // 录制完成后的音频 Blob 对象
       audioUrl: null, // 预览音频的 URL
       recordingLoading: false,
-      showMoji: false
+      showMoji: false,
+      roomId: "", //监听id
+      groupInfo: {}, //群聊信息
+      groupUserMap: {},
+      actions: [{ name: "删除好友", value: "remove" }],
+      actionSheet_Show: false,
+      groupUserList: [],
+      total: 0
     };
   },
   mounted() {
@@ -244,22 +270,32 @@ export default {
       window.sessionStorage.getItem("userInfos") || "{}"
     );
     this.avatar = this.userInfos.avatar;
-    this.scrollToBottom();
+    this.roomId = this.$route.query.groupId || this.ChatContent.friendId;
+
+    const broadcastId = this.$route.query.groupId || this.ChatContent.openId;
 
     this.init();
+    this.getGroupInfo();
+    this.scrollToBottom();
 
     const socket = new SockJS("http://localhost:8066/room");
     this.stompClient = Stomp.over(socket);
 
-    this.stompClient.connect({}, frame => {
+    this.stompClient.connect({}, () => {
       this.stompClient.subscribe(
-        `/broadcast/${this.ChatContent.openId}/queue/messages`,
+        `/broadcast/${broadcastId}/queue/messages`,
         message => {
           const body = JSON.parse(message.body);
+          debugger
           if (body.messageType === "remove") {
-            this.removeFlag = true;
+            if (body.message === this.userInfos.openId) {
+              this.removeFlag = true;
+            }
             return;
           }
+
+          if (this.$route.query.groupId && body.openId == this.userInfos.openId)
+            return;
 
           this.list.push(body);
         }
@@ -275,14 +311,51 @@ export default {
       this.options = !this.options;
     },
     init() {
-      //获取聊天记录
-      this.$Request_post(this.$AXIOS_URL + "/api/recording/findrecording", {
-        page: this.page,
-        size: this.size,
-        friendId: this.ChatContent.friendId
+      this.loading = true;
+
+      if (this.$route.query.groupId) {
+        //获取群聊聊天记录
+        this.$Request_post(this.$AXIOS_URL + "/api/recording/groupRecords", {
+          page: this.page,
+          size: this.size,
+          friendId: this.roomId
+        }).then(({ data }) => {
+          this.total = data.total;
+          if (data.total <= this.list.length) return (this.loading = false);
+          this.page++;
+          this.list = [...data.list, ...this.list];
+          this.loading = false;
+        });
+      } else {
+        //获取聊天记录
+        this.$Request_post(this.$AXIOS_URL + "/api/recording/findrecording", {
+          page: this.page,
+          size: this.size,
+          friendId: this.roomId
+        }).then(({ data }) => {
+          this.total = data.total;
+          if (data.total <= this.list.length) return (this.loading = false);
+          this.page++;
+          this.list = [...data.list, ...this.list];
+          this.loading = false;
+        });
+      }
+    },
+    getGroupInfo() {
+      //获取群 信息
+      this.$Request_get(this.$AXIOS_URL + "/api/group/getGroupInfo", {
+        groupId: this.roomId
       }).then(({ data }) => {
-        this.list = [...data.list, ...this.list];
-        this.loading = false;
+        this.groupInfo = data;
+      });
+
+      this.$Request_get(this.$AXIOS_URL + "/api/group/getGroupMember", {
+        groupId: this.roomId
+      }).then(({ data }) => {
+        this.groupUserList = data;
+        data.forEach(element => {
+          this.groupUserMap[element.openId] = element;
+        });
       });
     },
     sendMessage(message = this.message, contentType = "txt") {
@@ -303,12 +376,12 @@ export default {
          */
         var data = {
           openId: this.userInfos.openId,
-          friendId: this.ChatContent.friendId,
+          friendId: this.roomId,
           contentType: contentType,
           contentStatus: "unread",
           message: message,
           timestamp: new Date().getTime(),
-          messageType: "single"
+          messageType: this.$route.query.groupId ? "group" : "single"
         };
         this.stompClient.send("/app/sendMessage", {}, JSON.stringify(data));
         this.message = "";
@@ -335,6 +408,19 @@ export default {
             document.documentElement.scrollHeight || document.body.scrollHeight;
       });
     },
+    onInfo() {
+      if (this.$route.query.groupId) {
+        this.$router.push({
+          name: "groupinfo",
+          query: {
+            groupUserList: JSON.stringify(this.groupUserList),
+            groupInfo: JSON.stringify(this.groupInfo)
+          }
+        });
+      } else {
+        this.actionSheet_Show = !this.actionSheet_Show;
+      }
+    },
     /**
      * 表情包selectEmoji
      */
@@ -350,9 +436,16 @@ export default {
     },
 
     onRefresh() {
-      this.loading = true;
-      this.page++;
       this.init();
+    },
+    selectOption(events) {
+      if (events.value == "remove") {
+        this.$Request_get(this.$AXIOS_URL + "/api/friends/deleteFriend").then(
+          res => {
+            this.$router.push({ name: "home" });
+          }
+        );
+      }
     },
     async startRecording() {
       console.log("开始录音");

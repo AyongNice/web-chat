@@ -11,41 +11,47 @@
         />
       </div>
     </div>
-
     <div class="van_swipe_box" v-if="friendList.length >= 1">
-      <van-swipe-cell v-for="(item, index) in friendList" :key="index">
-        <div
-          class="van_swipe_msg_box"
-          stop-propagation="true"
-          v-if="JSON.parse(item.msgs).length >= 1"
-          @click.stop="sendMessage(item)"
-        >
-          <div style="display: flex;">
-            <div>
-              <van-image
-                round
-                width="40"
-                height="40"
-                style="padding: 10px;"
-                :src="item.avatar"
+      <van-checkbox-group v-model="result">
+        <van-swipe-cell v-for="(item, index) in friendList" :key="index">
+          <div class="van_swipe_msg_box" stop-propagation="true">
+            <div style="display: flex;">
+              <van-checkbox
+                style="margin-left: 10px;"
+                v-if="createGroupFlag && !item.leader"
+                :name="item.friendId"
               />
-            </div>
-            <div>
-              <span class="msg_box_username">{{
-                item.note == null ? item.username : item.note
-              }}</span>
-              <span class="msg_box_msg">
-                {{
-                  item.msgs[item.msgs.length - 1].type == "String"
-                    ? item.msgs[item.msgs.length - 1].msg
-                    : "[图片]"
-                }}
-                <!--{{verify_msg(this.$ls.get('userInfos').avatar)==true?test:'[图片]'}}-->
-              </span>
+              <div @click.stop="sendMessage(item)">
+                <van-image
+                  round
+                  width="40"
+                  height="40"
+                  style="padding: 10px;"
+                  :src="item.avatar"
+                />
+              </div>
+              <div @click.stop="sendMessage(item)">
+                <span class="msg_box_username">{{
+                  item.note == null ? item.username : item.note
+                }}</span>
+                <span class="msg_box_msg">
+                  <!-- {{
+                    item.msgs[item.msgs.length - 1].type == "String"
+                      ? item.msgs[item.msgs.length - 1].msg
+                      : "[图片]"
+                  }} -->
+                  <!--{{verify_msg(this.$ls.get('userInfos').avatar)==true?test:'[图片]'}}-->
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </van-swipe-cell>
+        </van-swipe-cell>
+      </van-checkbox-group>
+    </div>
+
+    <div v-if="createGroupFlag" class="add-group">
+      <van-button @click="createGroupFlag = false">取消</van-button>
+      <van-button @click="addGropp" type="primary">创建群聊</van-button>
     </div>
     <van-action-sheet
       v-model="actionSheet_Show"
@@ -75,10 +81,13 @@ export default {
       actionSheet_Show: false,
       actions: [
         { name: "添加好友", value: "add" },
-        { name: "匹配聊天", value: "matching" }
+        { name: "新建群聊", value: "addGroup" }
       ],
       friendList: [],
-      userInfos: {}
+      userInfos: {},
+      result: [],
+      createGroupFlag: false,
+      groupList: []
     };
   },
   computed: {
@@ -92,20 +101,7 @@ export default {
       };
     }
   },
-  sockets: {
-    get_sendMessage_msg(data) {
-      console.log(data);
-      //				this.ChatContent.msgs.push(data)
-      console.log(
-        this.friendList[
-          this.friendList.map(x => x.friendId).indexOf(data.openId)
-        ]
-      );
-      this.friendList[
-        this.friendList.map(x => x.friendId).indexOf(data.openId)
-      ].msgs.push(data);
-    }
-  },
+
   mounted() {
     this.userInfos = JSON.parse(
       window.sessionStorage.getItem("userInfos") || "{}"
@@ -118,24 +114,56 @@ export default {
     this.$Request_get(this.$AXIOS_URL + "/api/friends/findByFriendList").then(
       res => {
         Toast.clear();
-        if (res.data.length >= 1) {
-          this.friendList = res.data;
+        if (res.data.length) {
+          this.friendList = [...this.friendList, ...res.data];
           //在vuex中管理状态，使用session，避免页面刷新数据消失，
-          sessionStorage.setItem("Friend_List", JSON.stringify(res.data));
+          sessionStorage.setItem(
+            "Friend_List",
+            JSON.stringify(this.friendList)
+          );
           //commit一次，再次让vuex状态重新获取一次值对象。
           this.$store.commit("setFriend_List");
         }
       }
     );
+    this.$Request_get(this.$AXIOS_URL + "/api/friends/groupList").then(res => {
+      if (res.data.length) {
+        this.friendList = [...this.friendList, ...res.data];
+        res.data.forEach(element => {
+          this.groupList = [...this.groupList, ...element.list.split(",")];
+        });
+
+        //在vuex中管理状态，使用session，避免页面刷新数据消失，
+        sessionStorage.setItem("Friend_List", JSON.stringify(this.friendList));
+        //commit一次，再次让vuex状态重新获取一次值对象。
+        this.$store.commit("setFriend_List");
+      }
+    });
   },
   methods: {
     selectOption(events) {
       console.log(events);
       if (events.value == "add") {
         this.$router.push({ name: "add_Friend" });
-      } else if (events.value == "matching") {
-        Toast("懒得写了，没啥意思有空有时间在弄!");
       }
+      if (events.value == "addGroup") {
+        this.createGroupFlag = true;
+      }
+    },
+
+    addGropp() {
+      this.$Request_post(
+        this.$AXIOS_URL + "/api/group/addGroup",
+        this.result
+      ).then(res => {
+        this.createGroupFlag = false;
+        this.$router.push({
+          name: "chat_room",
+          query: {
+            groupId: res.data
+          }
+        });
+      });
     },
     sendMessage(item) {
       console.log(item);
@@ -143,6 +171,15 @@ export default {
       sessionStorage.setItem("That_Chat", JSON.stringify(item));
       //commit一次，再次让vuex状态重新获取一次值对象。
       this.$store.commit("setThat_Chat");
+
+      if (item.leader) {
+        return this.$router.push({
+          name: "chat_room",
+          query: {
+            groupId: item.id
+          }
+        });
+      }
       this.$router.push({ name: "chat_room" });
     },
     onDeleteChat(index, item) {
