@@ -69,29 +69,21 @@ public class RecordingController {
 
     @PostMapping("/upload")
     public Result<String> upLoad(MultipartFile file) throws IOException {
-
-
-        //判断图片 音频
+        String fileName = file.getOriginalFilename();
+        //判断图片
         if (Objects.requireNonNull(file.getContentType()).contains("image")) {
+            file.transferTo(new File(static1.getPath() + fileName));
+            return Result.success(fileName);
 
-            String filename = file.getOriginalFilename();
-            file.transferTo(new File(static1.getPath() + filename));
-            return Result.success(filename);
-            //图片
         }
 
         if (file.getContentType().contains("audio")) {
-
             // 获取文件名并保存到指定位置，这里示例保存到本地
-            String fileName = file.getOriginalFilename();
             saveFile(file.getInputStream(), static1.getPath() + fileName);
-
-            return Result.success(fileName);
             //音频
+            return Result.success(fileName);
+
         }
         return Result.error("文件类型错误");
-
     }
-
-
 }
