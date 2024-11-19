@@ -224,7 +224,7 @@ import SockJS from "sockjs-client";
 import * as Stomp from "stompjs";
 import MessageBox from "./components/message-box.vue";
 import MojiPicker from "./components/moji-picker.vue";
-import {Toast} from 'vant'
+import { Toast, Dialog } from "vant";
 export default {
   name: "chat_room",
   components: {
@@ -286,7 +286,6 @@ export default {
         `/broadcast/${broadcastId}/queue/messages`,
         message => {
           const body = JSON.parse(message.body);
-          debugger
           if (body.messageType === "remove") {
             if (body.message === this.userInfos.openId) {
               this.removeFlag = true;
@@ -440,11 +439,17 @@ export default {
     },
     selectOption(events) {
       if (events.value == "remove") {
-        this.$Request_get(this.$AXIOS_URL + "/api/friends/deleteFriend").then(
-          res => {
+        Dialog.confirm({
+          title: "删除",
+          message:
+            "确定要删除好友吗？（删除好友导致对方账户也将删除你的好友信息！）"
+        }).then(() => {
+          this.$Request_post(this.$AXIOS_URL + "/api/friends/deleteFriend", {
+            friendId: this.roomId
+          }).then(() => {
             this.$router.push({ name: "home" });
-          }
-        );
+          });
+        });
       }
     },
     async startRecording() {

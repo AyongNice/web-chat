@@ -114,30 +114,24 @@ export default {
     this.$Request_get(this.$AXIOS_URL + "/api/friends/findByFriendList").then(
       res => {
         Toast.clear();
-        if (res.data.length) {
-          this.friendList = [...this.friendList, ...res.data];
-          //在vuex中管理状态，使用session，避免页面刷新数据消失，
-          sessionStorage.setItem(
-            "Friend_List",
-            JSON.stringify(this.friendList)
-          );
-          //commit一次，再次让vuex状态重新获取一次值对象。
-          this.$store.commit("setFriend_List");
-        }
-      }
-    );
-    this.$Request_get(this.$AXIOS_URL + "/api/friends/groupList").then(res => {
-      if (res.data.length) {
         this.friendList = [...this.friendList, ...res.data];
-        res.data.forEach(element => {
-          this.groupList = [...this.groupList, ...element.list.split(",")];
-        });
-
+        console.log("this.friendList", this.friendList);
         //在vuex中管理状态，使用session，避免页面刷新数据消失，
         sessionStorage.setItem("Friend_List", JSON.stringify(this.friendList));
         //commit一次，再次让vuex状态重新获取一次值对象。
         this.$store.commit("setFriend_List");
       }
+    );
+    this.$Request_get(this.$AXIOS_URL + "/api/friends/groupList").then(res => {
+      this.friendList = [...this.friendList, ...res.data];
+      res.data.forEach(element => {
+        this.groupList = [...this.groupList, ...element.list.split(",")];
+      });
+
+      //在vuex中管理状态，使用session，避免页面刷新数据消失，
+      sessionStorage.setItem("Friend_List", JSON.stringify(this.friendList));
+      //commit一次，再次让vuex状态重新获取一次值对象。
+      this.$store.commit("setFriend_List");
     });
   },
   methods: {

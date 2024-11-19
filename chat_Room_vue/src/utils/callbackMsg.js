@@ -14,7 +14,15 @@ class StompService {
     }
   }
 
-  sendMessage({ openId, roomId, contentType, message, messageType }) {
+  sendMessage({
+    openId,
+    roomId,
+    contentType,
+    message,
+    messageType,
+    remark,
+    url = "/app/sendMessage"
+  }) {
     const data = {
       openId,
       friendId: roomId,
@@ -22,9 +30,12 @@ class StompService {
       contentStatus: "unread",
       message,
       timestamp: new Date().getTime(),
-      messageType: messageType
+      messageType: messageType,
+      sendId:openId,
+      receiveId:roomId,
+      remark
     };
-    stompClient.send("/app/sendMessage", {}, JSON.stringify(data));
+    stompClient.send(url, {}, JSON.stringify(data));
   }
 
   subscribe(topic, callback) {

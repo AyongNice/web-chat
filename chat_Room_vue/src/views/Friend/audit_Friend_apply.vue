@@ -22,7 +22,7 @@
 		</div>
 		<div style="height: 54px;"></div>
 		
-		<div style="width: 100%; height: 100%; background: #FFFFFF;" v-if="applyList!=null">
+		<div style="width: 100%; height: 100%; background: #FFFFFF;">
 			<div style="width: 92%; height: 46px; margin-left: 4%; border-bottom: 0.1px solid #8C99A0; padding: 4px;" v-for="(item,index) in applyList" @click="lock_Friend_details(item)" :key="index">
 				<van-row>
 					<van-col span="4">
@@ -54,7 +54,7 @@
 			}
 		},
 		mounted(){
-			console.log(this.$store.state.Apply_Friend_List)
+			console.log(111,this.$store.state.Apply_Friend_List)
 		},
 		methods:{
 			lock_Friend_details(item){

@@ -92,7 +92,7 @@ export default {
       sessionStorage.setItem("Friend_List_item", JSON.stringify(item));
       //commit一次，再次让vuex状态重新获取一次值对象。
       this.$store.commit("setFriend_List_item");
-      this.$router.push({ name: "Friend_Information_" });
+      // this.$router.push({ name: "Friend_Information_" });
     },
     addGroupUser() {
       this.$Request_post(this.$AXIOS_URL + "/api/group/addGroupUser", {
