@@ -98,10 +98,10 @@
 					avatar:this.$ls.get('userInfos').avatar,
 				}
 				console.log(data)
-				if(this.text!="") {
+				if(this.text!=="") {
 					this.$Request_post(this.$AXIOS_URL + "/v1/api/circle/addCircle", data).then(res => {
 						console.log(res)
-						if(res.status == 200 && res.data.message == "Save success") {
+						if(res.status === 200 && res.data.message === "Save success") {
 							Toast.success('发布成功')
 							this.text = ""
 							this.fileList = []
