@@ -92,16 +92,26 @@
 
         <div v-if="item.commentList && item.commentList.length" class="link-box">
           <dd v-for="(comment, commentIndex) in item.commentList"
-              :key="commentIndex">
-            <div><span @click="onUserNameMessage(item, comment.userId, comment.userName)">{{
-                comment.userName
-              }} </span>
-              回复
-              <span @click="onUserNameMessage(item,comment.receiverId, comment.receiverName)">{{
-                  comment.receiverName
-                }}  </span>
-              : {{ comment.commentMessage }}
-            </div>
+              :key="commentIndex"
+              @click="showPopup($event,comment)"
+              style="margin-top: 15px"
+          >
+            <van-popover v-model="comment.showPopover" :actions="actions" @select="onSelect">
+              <template #reference>
+                <div>
+              <span @click="onUserNameMessage(item, comment.userId, comment.userName)">{{
+                  comment.userName
+                }} </span>
+                  回复
+                  <span @click="onUserNameMessage(item,comment.receiverId, comment.receiverName)">{{
+                      comment.receiverName
+                    }}  </span>
+                  : {{ comment.commentMessage }}
+                </div>
+              </template>
+            </van-popover>
+
+
           </dd>
 
         </div>
@@ -133,6 +143,9 @@
         	描述：发布朋友圈
         -->
     <redactCircle ref="redact"></redactCircle>
+    <div v-if="show" @click="onRemove" :style="{ position: 'absolute', left: x + 'px', top: y + 'px' }" class="popup">
+      删除
+    </div>
   </div>
 </template>
 
@@ -149,7 +162,9 @@ export default {
         page: 1,
         size: 10
       },
-
+      show: false,//删除popu
+      x: 0,
+      y: 0,
       actions: [{text: "点赞"}, {text: "评论"}],
       circleList: [],
       imgSizeMap: {
@@ -235,7 +250,19 @@ export default {
 
   },
   methods: {
+    showPopup(event, comment) {
+      if (comment.userId == this.userInfos.openId) {
+        this.x = event.clientX;
+        this.y = event.clientY + window.scrollY; // 考虑滚动条的位置
+        this.show = true;
+      } else {
+        this.show = false;
+      }
 
+    },
+    onRemove() {
+      this.show = false;
+    },
     onPopover(item) {
       this.selectItem = item
       this.$nextTick(() => {
@@ -390,5 +417,14 @@ export default {
 .link-box {
   background: rgba(108, 117, 125, 0.2);
   padding: 5px;
+  position: relative;
+}
+
+.popup {
+  position: absolute;
+  background-color: white;
+  padding: 10px 15px;
+  border-radius: 7px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 </style>
