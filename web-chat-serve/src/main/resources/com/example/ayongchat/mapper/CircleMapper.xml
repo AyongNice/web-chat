@@ -43,6 +43,11 @@
         from like_circle
         where id = #{id}
     </delete>
+    <delete id="deleteComment">
+        delete
+        from friend_circle_comment
+        where id = #{id}
+    </delete>
 
     <!--    根据 circleList 查询多个 点赞信息-->
     <select id="findLike" resultType="com.example.ayongchat.enitiy.FindLikeDto">
@@ -79,6 +84,21 @@
                 #{createdAt})
 
     </insert>
+
+    <!--    根据id查询当前评论查询-->
+    <select id="findById" resultType="com.example.ayongchat.enitiy.CommentCircle">
+        select id,
+               circle_id       as circleId,
+               user_id         as userId,
+               user_name       as userName,
+               comment_message as commentMessage,
+               receiver_id     as receiverId,
+               receiver_name   as receiverName,
+               created_at      as createdAt
+        from friend_circle_comment
+        where id = #{id}
+
+    </select>
 
     <!--    评论查询-->
     <select id="findComment" resultType="com.example.ayongchat.enitiy.CommentCircle">

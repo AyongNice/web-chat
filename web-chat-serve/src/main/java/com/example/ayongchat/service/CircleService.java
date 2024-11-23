@@ -49,4 +49,12 @@ public interface CircleService {
      * @return
      */
     List<CommentCircle> findComment(String[] list);
+
+
+    /**
+     * 删除评论
+     * @param circleId 评论id
+     * @param authorization token
+     */
+    void deleteComment(String commentId, String authorization);
 }

@@ -50,9 +50,8 @@ public class CircleController {
      */
 
     @GetMapping("/findByMeCircle")
-    public Result<PageInfo<CircleDto>> getCircle(@RequestHeader("Authorization") String authorization,
-                                                 @ModelAttribute Page page) {
-        return Result.success(circleService.findByMeCircle(authorization,page));
+    public Result<PageInfo<CircleDto>> getCircle(@RequestHeader("Authorization") String authorization, @ModelAttribute Page page) {
+        return Result.success(circleService.findByMeCircle(authorization, page));
     }
 
     /**
@@ -82,8 +81,23 @@ public class CircleController {
         return Result.success();
     }
 
+    /**
+     * 查询朋友圈评论信息
+     *
+     * @param ids
+     * @return
+     */
     @GetMapping("/findComment")
     public Result<List<CommentCircle>> findComment(@Param("ids") String ids) {
         return Result.success(circleService.findComment(ids.split(",")));
+    }
+
+    /**
+     * 删除朋友圈 评论
+     */
+    @DeleteMapping("/deleteComment/{commentId}")
+    public Result<String> deleteComment(@PathVariable String commentId, @RequestHeader("Authorization") String authorization) {
+        circleService.deleteComment(commentId, authorization);
+        return Result.success();
     }
 }

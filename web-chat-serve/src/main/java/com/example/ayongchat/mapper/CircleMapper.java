@@ -49,8 +49,24 @@ public interface CircleMapper {
 
     /**
      * 查询评论信息
+     *
      * @param list 评论id集合
      * @return
      */
     List<CommentCircle> findComment(String[] list);
+
+
+    /**
+     * 根据id查询当前评论查询-
+     */
+    CommentCircle findById(String id);
+
+
+    /**
+     * 根据id删除评论
+     *
+     * @param id
+     */
+    void deleteComment(String id);
+
 }

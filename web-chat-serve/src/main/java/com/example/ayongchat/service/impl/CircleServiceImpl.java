@@ -100,4 +100,23 @@ public class CircleServiceImpl implements CircleService {
     public List<CommentCircle> findComment(String[] list) {
         return circleMapper.findComment(list);
     }
+
+    /**
+     * 删除评论
+     *
+     * @param commentId      评论id
+     * @param authorization token
+     */
+    @Override
+    public void deleteComment(String commentId, String authorization) {
+        String id = jwtUtil.getID(authorization);
+        CommentCircle commentCircle = circleMapper.findById(commentId);
+        if (commentCircle.getUserId().equals(id)) {
+            circleMapper.deleteComment(commentId);
+        } else {
+            throw new RuntimeException("你没有权限删除");
+        }
+
+
+    }
 }
