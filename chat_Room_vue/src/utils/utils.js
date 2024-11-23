@@ -33,14 +33,14 @@ export function Request_put(url, data) {
 }
 
 export function Request_delete(url, data) {
-	return new Promise((reoslv, reject) => {
+	return new Promise((reoslve, reject) => {
 		Axios.delete(url, {
 			params: data
 		}).then(res => {
-			reoslv(res);
+      reoslve(res);
 		})
 	}).catch(err => {
-		reject(err);
+    reject(err);
 	})
 }
 

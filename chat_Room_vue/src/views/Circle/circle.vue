@@ -93,7 +93,7 @@
         <div v-if="item.commentList && item.commentList.length" class="link-box">
           <dd v-for="(comment, commentIndex) in item.commentList"
               :key="commentIndex"
-              @click="showPopup($event,comment)"
+              @click="showPopup($event,comment,commentIndex,item.commentList)"
               style="margin-top: 15px"
           >
             <van-popover v-model="comment.showPopover" :actions="actions" @select="onSelect">
@@ -151,7 +151,7 @@
 
 <script>
 import redactCircle from "@/components/popups/redactCircle";
-import {Divider, ImagePreview} from "vant";
+import {Divider, ImagePreview, Toast} from "vant";
 import {baseFileUrl} from "@/utils/utils";
 
 export default {
@@ -175,7 +175,9 @@ export default {
       selectItem: {},//当前选择项
       commentMessage: '',//评论
       userInfos: {},
-
+      commentId: '',//评论id
+      commentIndex: '',
+      commentList: [],
     };
   },
   computed: {},
@@ -225,6 +227,7 @@ export default {
         "commentMessage": _.commentMessage,
         "receiverId": _.receiverId,
         "receiverName": _.receiverName,
+        id: _.id
       })
     }
 
@@ -250,19 +253,44 @@ export default {
 
   },
   methods: {
-    showPopup(event, comment) {
+    /**
+     * 评论弹框
+     * @param event
+     * @param comment
+     * @param commentIndex
+     * @param list
+     */
+    showPopup(event, comment, commentIndex, list) {
       if (comment.userId == this.userInfos.openId) {
         this.x = event.clientX;
         this.y = event.clientY + window.scrollY; // 考虑滚动条的位置
         this.show = true;
+        this.commentId = comment.id;
+        this.commentIndex = commentIndex;
+        this.commentList = list;
       } else {
         this.show = false;
       }
 
     },
+    /**
+     * 关闭评论内容删除弹框
+     */
     onRemove() {
       this.show = false;
+      this.$Request_delete(this.$AXIOS_URL + `/api/circle/deleteComment/${this.commentId}`, {
+        circleId: this.selectItem.id,
+        userId: this.userInfos.openId,
+      }).then(() => {
+        this.commentList.splice(this.commentIndex, 1);
+        this.$forceUpdate();
+        Toast("删除成功")
+      })
     },
+    /**
+     * 点击评论按钮
+     * @param item
+     */
     onPopover(item) {
       this.selectItem = item
       this.$nextTick(() => {
@@ -271,6 +299,10 @@ export default {
       });
     }
     ,
+    /**
+     * 朋友圈选择
+     * @param e
+     */
     onSelect(e) {
       console.log(e);
 
@@ -341,6 +373,11 @@ export default {
 
       });
     },
+    /**
+     * 获取图片样式
+     * @param length
+     * @returns {*|string}
+     */
     getImgSize(length) {
       if (!this.imgSizeMap[length]) {
         return `width: 70px; height: 70px;`;
@@ -348,6 +385,11 @@ export default {
       return this.imgSizeMap[length];
     }
     ,
+    /**
+     * 获取图片地址
+     * @param data
+     * @returns {*}
+     */
     getImageDom(data) {
       return baseFileUrl + data;
     }
