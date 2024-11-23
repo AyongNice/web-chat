@@ -20,4 +20,9 @@ public class Constant {
     // 好友消息类型
     public static final String friend = "single";
 
+    // 验证码随机数
+    public static final int max = 1000;
+    public static final int min = 9999;
+
+
 }

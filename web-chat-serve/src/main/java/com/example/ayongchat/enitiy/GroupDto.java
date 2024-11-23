@@ -10,7 +10,6 @@ import java.util.List;
  * @author Ayong
  * 群聊
  */
-
 @Data
 public class GroupDto {
     private String id;

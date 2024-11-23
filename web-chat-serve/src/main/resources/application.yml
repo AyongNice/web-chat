@@ -38,7 +38,7 @@ static:
   path: /Users/ayong/ayong-code/java/static/
 
 mail:
-  host: pop.163.com
+  host: smtp.163.com
   port: 465
   username: ayongnice@163.com
   password: PXkkK35unApvMb5u

@@ -3,6 +3,9 @@ package com.example.ayongchat.enitiy;
 
 import lombok.Data;
 
+/**
+ * 消息实体类
+ */
 @Data
 public class Message {
 
@@ -26,7 +29,6 @@ public class Message {
     private String message;
     private String timestamp;
     private String messageType;
-
 
 
 }

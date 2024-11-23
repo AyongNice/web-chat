@@ -24,6 +24,7 @@ public class MailConfig {
         mailSender.setPort(port);
         mailSender.setUsername(username);
         mailSender.setPassword(password);
+
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         props.put("mail.smtp.socketFactory.fallback", "false");
