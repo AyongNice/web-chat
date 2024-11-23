@@ -41,7 +41,7 @@ mail:
   host: smtp.163.com
   port: 465
   username: ayongnice@163.com
-  password: PXkkK35unApvMb5u
+  password: ''
   properties:
     mail:
       smtp:
