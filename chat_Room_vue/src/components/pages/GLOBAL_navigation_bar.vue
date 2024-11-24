@@ -5,7 +5,7 @@
     >
       <div style="display: flex; text-align: center;">
         <div style="width: 25%;" @click="goRouter('home')">
-          <van-icon :name="home.name" size="30" style="line-height: 50px;" />
+          <van-icon :name="home.name" size="30" style="line-height: 50px;"/>
         </div>
         <div
           style="width: 25%;position: relative;"
@@ -16,15 +16,16 @@
             round
             type="danger"
             v-if="count != 0"
-            >{{ count }}</van-tag
+          >{{ count }}
+          </van-tag
           >
-          <van-icon :name="linkman.name" size="30" style="line-height: 50px;" />
+          <van-icon :name="linkman.name" size="30" style="line-height: 50px;"/>
         </div>
         <div style="width: 25%;" @click="goRouter('circle')">
-          <van-icon :name="circle.name" size="30" style="line-height: 50px;" />
+          <van-icon :name="circle.name" size="30" style="line-height: 50px;"/>
         </div>
         <div style="width: 25%;" @click="goRouter('userInfo_Tab')">
-          <van-icon :name="user.name" size="30" style="line-height: 50px;" />
+          <van-icon :name="user.name" size="30" style="line-height: 50px;"/>
         </div>
       </div>
     </div>
@@ -33,39 +34,24 @@
 </template>
 
 <script>
-import { Icon } from "vant";
+import {Icon} from "vant";
 import stompService from "@/utils/callbackMsg.js";
 import SockJS from "sockjs-client";
 import * as Stomp from "stompjs";
+
 export default {
   name: "GLOBAL_navigation_bar",
   data() {
     return {
-      home: { name: "chat-o" },
-      linkman: { name: "friends-o" },
-      circle: { name: "fire-o" },
-      user: { name: "manager-o" },
+      home: {name: "chat-o"},
+      linkman: {name: "friends-o"},
+      circle: {name: "fire-o"},
+      user: {name: "manager-o"},
       userInfos: {},
       count: 0
     };
   },
-  created() {
-    this.findAddRecords();
 
-    this.userInfos = JSON.parse(
-      window.sessionStorage.getItem("userInfos") || "{}"
-    );
-    const socket = new SockJS("http://localhost:8066/room");
-    const stompClient = Stomp.over(socket);
-    stompClient.connect({}, () => {
-      stompClient.subscribe(
-        `/broadcast/${this.userInfos.openId}/queue/addFriend`,
-        () => {
-          this.findAddRecords();
-        }
-      );
-    });
-  },
   mounted() {
     if (this.$route.name == "home") {
       this.home.name = "chat";
@@ -79,11 +65,33 @@ export default {
     if (this.$route.name == "userInfo_Tab") {
       this.user.name = "manager";
     }
+    this.findAddRecords();
+
+    this.userInfos = JSON.parse(
+      window.sessionStorage.getItem("userInfos") || "{}"
+    );
+    const socket = new SockJS("http://localhost:8066/room");
+    const stompClient = Stomp.over(socket);
+    stompClient.connect({}, () => {
+
+      stompClient.subscribe(
+        `/broadcast/${this.userInfos.openId}/queue/addFriend`,
+        () => {
+          console.log("有人添加你好友")
+          setTimeout(() => {
+            this.findAddRecords();
+
+          })
+
+
+        }
+      );
+    });
   },
   methods: {
     findAddRecords() {
       this.$Request_get(this.$AXIOS_URL + "/api/friends/findAddRecords").then(
-        ({ data }) => {
+        ({data}) => {
           this.count = data.length;
           sessionStorage.setItem("Apply_Friend_List", JSON.stringify(data));
           this.$store.commit("setApply_Friend_List", data);
@@ -92,7 +100,7 @@ export default {
     },
     goRouter(routers) {
       if (this.$route.name != routers) {
-        this.$router.push({ name: routers });
+        this.$router.push({name: routers});
       }
     }
   },

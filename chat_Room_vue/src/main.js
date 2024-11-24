@@ -3,6 +3,7 @@
 import Vue from "vue";
 import App from "./App";
 import router from "./router";
+
 const Vant = require("vant");
 //require('vant/lib/index.css')
 const Axios = require("axios");
@@ -20,7 +21,6 @@ const moment = require("moment");
 
 import store from "./store/index.js";
 // import SocketIO from 'socket.io-client';
-
 
 
 import VEmojiPicker from "v-emoji-picker";
@@ -48,19 +48,21 @@ Vue.prototype.$AXIOS_URL = "";
 Vue.prototype.$moment = moment;
 
 Vue.use(Vant);
-import { Toast, Notify } from "vant";
+import {Toast, Notify} from "vant";
 
 /**
  *axios拦截器
  */
 Axios.defaults.headers.post["Content-Type"] = "application/json";
 Axios.interceptors.request.use(
-  function(config) {
+  function (config) {
     //	console.log(config.url)
     if (
       !config.url.includes("login") &&
-      !config.url.includes("send-email") &&
-      !config.url.includes("sendAuth_codes")
+      !config.url.includes("email") &&
+      !config.url.includes("sendAuth_codes") &&
+      !config.url.includes("register")
+
     ) {
       config.headers.Authorization = JSON.parse(
         window.sessionStorage.getItem("userInfos") || {}
@@ -68,30 +70,21 @@ Axios.interceptors.request.use(
     }
     return config;
   },
-  function(error) {
-    return Promise.reject(error);
+  function (error) {
+    console.log(111, error)
+    return Promise.resolve(error);
   }
 );
 Axios.interceptors.response.use(
-  function(response) {
-    console.log(response);
-    if (response.data.message != null && response.data.message != "") {
-      if (response.status == 200) {
-        Toast.loading({
-          type: "success",
-          message: response.data.message,
-          duration: 3000
-        });
-      }
-    }
-
+  function (response) {
     return response.data;
   },
-  function(error) {
+  function (error) {
+    console.log(error)
     if (error.toString().includes("401")) {
       router.push("/login");
     }
-    return Promise.reject(error);
+    return Promise.resolve(error);
   }
 );
 
@@ -107,6 +100,7 @@ var options = {
 };
 Vue.use(Storage, options);
 import "@/permission.js";
+
 console.log("vue-ls", Vue.$ls);
 
 /**
@@ -119,12 +113,13 @@ console.log("vue-ls", Vue.$ls);
 console.log("socket启动连接");
 
 import Moment from "moment";
-Vue.filter("formatDate", function(value) {
+
+Vue.filter("formatDate", function (value) {
   return Moment(value).format("YYYY-MM-DD HH:mm:ss");
 });
 //自动获取焦点
 Vue.directive("myfocus", {
-  inserted: function(el, binding) {
+  inserted: function (el, binding) {
     //console.log(el)
     el.focus();
   }

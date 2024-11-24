@@ -20,10 +20,10 @@
         <van-col span="16">
           <span
             style="font-size: 16px; display: flex; justify-content: center; line-height: 44px;"
-            >好友资料</span
+          >好友资料</span
           >
         </van-col>
-        <van-col span="4"> </van-col>
+        <van-col span="4"></van-col>
       </van-row>
     </div>
     <div style="height: 54px;"></div>
@@ -44,10 +44,10 @@
         <div style="width: 100%; height: 90px; border: 0px solid black;">
           <span
             style="display: flex; font-size: 18px; font-weight: bold; padding: 10px;"
-            >{{ searchUser.username }}</span
+          >{{ searchUser.username }}</span
           >
           <span style="display: flex; font-size: 12px; margin-left: 10px;"
-            >ID:{{ searchUser.email }}</span
+          >ID:{{ searchUser.email }}</span
           >
         </div>
       </div>
@@ -78,8 +78,8 @@
           </van-col>
           <van-col span="18">
             <span class="userInfo_list_content2">{{
-              searchUser.signature
-            }}</span>
+                searchUser.signature
+              }}</span>
           </van-col>
         </van-row>
       </div>
@@ -111,8 +111,8 @@
           </van-col>
           <van-col span="18">
             <span class="userInfo_list_content">{{
-              this.$moment(searchUser.birthday).format("YYYY-MM-DD")
-            }}</span>
+                this.$moment(searchUser.birthday).format("YYYY-MM-DD")
+              }}</span>
           </van-col>
         </van-row>
       </div>
@@ -132,7 +132,7 @@
               class="userInfo_list_content3"
               v-for="(item, index) in searchUser.city"
               :key="index"
-              >{{ item.name }}&nbsp;</span
+            >{{ item.name }}&nbsp;</span
             >
           </van-col>
         </van-row>
@@ -152,7 +152,7 @@
           精选照片
         </span>
         <span style="margin-right: 20px;">
-          <van-icon style="line-height: 41px;" name="arrow" />
+          <van-icon style="line-height: 41px;" name="arrow"/>
         </span>
       </div>
       <div style="width: 90%; margin-left: 5%;">
@@ -188,7 +188,8 @@
         color="#1989FA"
         block
         @click="subAdd"
-        >加好友</van-button
+      >加好友
+      </van-button
       >
     </div>
 
@@ -202,15 +203,19 @@
 </template>
 
 <script>
-import { ImagePreview, Button, Toast } from "vant";
+import {ImagePreview, Button, Toast} from "vant";
 import stompService from "@/utils/callbackMsg.js";
+import SockJS from "sockjs-client";
+import * as Stomp from "stompjs";
+
 export default {
   name: "friend_Information",
   data() {
     return {
       searchUser: this.$store.state.SearchUser || {},
       photoArr: [],
-      userInfos: {}
+      userInfos: {},
+      stompClient: {}//websocket连接
     };
   },
   computed: {
@@ -222,7 +227,7 @@ export default {
               Math.floor(
                 Math.random() * this.searchUser.photo_album[i].imgs.length
               )
-            ].img
+              ].img
           );
           return;
         }
@@ -246,6 +251,8 @@ export default {
     }
   },
   mounted() {
+    const socket = new SockJS("http://localhost:8066/room");
+    this.stompClient = Stomp.over(socket);
     this.userInfos = JSON.parse(
       window.sessionStorage.getItem("userInfos") || "{}"
     );
@@ -259,12 +266,13 @@ export default {
       });
     },
     subAdd() {
-      stompService.sendMessage({
-        url: "/app/addFriend",
-        openId: this.userInfos.openId,
-        roomId: this.searchUser.openId,
-        remark: ""
-      });
+      var data = {
+        sendId: this.userInfos.openId,
+        receiveId: this.searchUser.openId,
+        remark: '',
+      };
+      this.stompClient.send("/app/addFriend", {}, JSON.stringify(data));
+
       Toast.success("申请发送成功!");
     }
   },
@@ -292,16 +300,19 @@ export default {
   height: 44px;
   background: #ffffff;
   border-bottom: 1px solid #eaeaea;
+
   .userInfo_list_title {
     font-size: 14px;
     padding: 10px 20px;
     line-height: 44px;
   }
+
   .userInfo_list_content {
     font-size: 14px;
     padding: 10px 0px;
     line-height: 44px;
   }
+
   .userInfo_list_content2 {
     font-size: 14px;
     line-height: 44px;
@@ -314,12 +325,14 @@ export default {
     /* autoprefixer: on */
     -webkit-line-clamp: 1;
   }
+
   .userInfo_list_content3 {
     font-size: 14px;
     line-height: 44px;
     font-size: 14px;
     float: left;
   }
+
   .userInfo_list_arrow {
     display: flex;
     justify-content: center;
