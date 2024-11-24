@@ -14,7 +14,7 @@ import java.util.List;
 public class GroupDto {
     private String id;
     private String leader;
-    private String name;
+    private String name; // 群聊名称
     private LocalDate joinDate;
     private String list;
     private String username;

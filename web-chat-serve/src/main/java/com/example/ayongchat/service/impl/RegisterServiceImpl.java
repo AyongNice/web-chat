@@ -34,6 +34,7 @@ public class RegisterServiceImpl implements RegisterService {
             registerDto.setPassWord(PasswordUtil.encryptPassword(registerDto.getPassWord()));
             registerDto.setId(IdUtil.getSnowflakeNextIdStr());
             registerMapper.insertRegister(registerDto);
+            return "注册成功";
         }
         throw new RuntimeException("验证码不对");
     }

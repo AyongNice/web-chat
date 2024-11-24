@@ -6,7 +6,7 @@
 
     <insert id="insertRegister">
         insert into user (id, username, password, avatar, email)
-        values (#{id}, #{username}, #{password}, #{avatar}, #{email})
+        values (#{id}, #{userName}, #{passWord}, #{avatar}, #{email})
     </insert>
 
 

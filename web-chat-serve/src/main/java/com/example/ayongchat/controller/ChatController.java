@@ -80,10 +80,10 @@ public class ChatController {
 
         //对象转换成json
         String jsonMessage = objectMapper.writeValueAsString(payload);
-
-        messagingTemplate.convertAndSend(destination, jsonMessage);
         //Recording
         chatService.saveSystemMessage(payload);
+        messagingTemplate.convertAndSend(destination, jsonMessage);
+
     }
 
     /**

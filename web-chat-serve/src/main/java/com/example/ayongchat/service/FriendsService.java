@@ -20,12 +20,17 @@ public interface FriendsService {
     public List<Friends> getFriendsList(String openId);
 
     /**
-     * 根据好友id查询好友信息
+     * 根据好友信息 查询好友信息
+     * phone = #{friends}
+     * OR u.username = #{friends}
+     * OR u.name = #{friends}
+     * OR u.email
+     * 去查找符合条件的用户, 但是 不能查找自己, 也不能查找 friend_list 好友列表里 已存在的好友关系
      *
-     * @param friendId
-     * @return
+     * @param friends
+     * @return Friends
      */
-    Friends searchFriends(String friendId, String authorization);
+    Friends searchFriends(String friends, String authorization);
 
 
     /**

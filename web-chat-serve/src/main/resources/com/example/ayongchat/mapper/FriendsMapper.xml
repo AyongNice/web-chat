@@ -65,28 +65,28 @@
     </select>
 
     <!--   搜索好友-->
+    <!--    去查找符合条件的用户, 但是 不能查找自己, 也不能查找 friend_list 好友列表里 已存在的好友关系-->
     <select id="searchFriends" resultType="com.example.ayongchat.enitiy.Friends">
 
-        select distinct user.id as openId,
-                        name,
-                        phone,
-                        telephone,
-                        address,
-                        enabled,
-                        username,
-                        password,
-                        avatar,
-                        remark,
-                        roleId,
-                        signature
-        from user,
-             friend_list as fl
-        where user.id != #{id}
-          and fl.openId = #{id}
-          and fl.friendId != user.id
-          and (phone = #{friends}
-            or username = #{friends}
-            or name = #{friends})
+        SELECT DISTINCT u.id AS openId,
+                        u.phone,
+                        u.telephone,
+                        u.address,
+                        u.enabled,
+                        u.username,
+                        u.password,
+                        u.avatar,
+                        u.remark,
+                        u.roleId,
+                        u.signature
+        FROM user u
+                 LEFT JOIN friend_list fl ON u.id = fl.friendId AND fl.openId = '1860536857082114048'
+        WHERE u.id != #{id}
+          AND fl.friendId IS NULL
+          AND (u.phone = #{friends}
+            OR u.username = #{friends}
+            OR u.email = #{friends})
+
     </select>
 
     <!--    查询系统消息-->

@@ -1,6 +1,7 @@
 package com.example.ayongchat.service.impl;
 
 import com.example.ayongchat.constant.Constant;
+import com.example.ayongchat.exception.UnauthorizedException;
 import com.example.ayongchat.service.EmailService;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 @Data
 @ConfigurationProperties(prefix = "mail")
 public class EmailServiceImpl implements EmailService {
-    private String username ;
+    private String username;
     @Autowired
     private JavaMailSender javaMailSender;
 
@@ -27,12 +28,13 @@ public class EmailServiceImpl implements EmailService {
 
     public String sendSimpleMail(String to) {
 
-        int randomNum = ThreadLocalRandom.current().nextInt(Constant.max, Constant.min + 1);
         String random = this.strRedisT.opsForValue().get("email:" + to);
-        if (random != null && random.equals(String.valueOf(randomNum))) {
-            return "验证码已发送，请查收";
+        if (random != null) {
+            throw new UnauthorizedException("请勿重复发送");
         }
-        this.strRedisT.opsForValue().set("email:" + to, String.valueOf(randomNum), 60, TimeUnit.SECONDS);
+        int randomNum = ThreadLocalRandom.current().nextInt(Constant.max, Constant.min + 1);
+
+        this.strRedisT.opsForValue().set("email:" + to, String.valueOf(randomNum), 300, TimeUnit.SECONDS);
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);

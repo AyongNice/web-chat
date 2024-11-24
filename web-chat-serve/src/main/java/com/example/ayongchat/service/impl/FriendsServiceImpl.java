@@ -35,15 +35,20 @@ public class FriendsServiceImpl implements FriendsService {
 
 
     /**
-     * 根据条件搜索好友
+     * 根据好友信息 查询好友信息
+     * phone = #{friends}
+     * OR u.username = #{friends}
+     * OR u.name = #{friends}
+     * OR u.email
+     * 去查找符合条件的用户, 但是 不能查找自己, 也不能查找 friend_list 好友列表里 已存在的好友关系
      *
-     * @param friendId
+     * @param friends       phone  name email username
      * @param authorization
-     * @return
+     * @return Friends
      */
-    public Friends searchFriends(String friendId, String authorization) {
+    public Friends searchFriends(String friends, String authorization) {
 
-        return friendsMapper.searchFriends(friendId, jwtUtil.getID(authorization));
+        return friendsMapper.searchFriends(friends, jwtUtil.getID(authorization));
 
     }
 
@@ -122,7 +127,7 @@ public class FriendsServiceImpl implements FriendsService {
     /**
      * 根据群id 获取当前群成员信息
      */
-    public List<Friends> getGroupMember(String groupId){
+    public List<Friends> getGroupMember(String groupId) {
         return friendsMapper.getGroupMember(groupId);
     }
 
