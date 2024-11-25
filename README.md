@@ -65,7 +65,7 @@ yml 随便找个地方另起一行 配置下
 2. port 默认写465
 3. username 你的邮箱
 4. 密码 切记不是邮箱登陆密码, 是你开启`smtp` 给的密钥
-<img src="https://files.mdnice.com/user/54733/e867301f-469b-4ff8-ba53-cd37e3fa7b07.png" alt="图片描述" width="340" height="400">
+<img src="https://files.mdnice.com/user/54733/e867301f-469b-4ff8-ba53-cd37e3fa7b07.png" alt="图片描述" width="340" height="200">
 
 
 
