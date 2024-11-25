@@ -1,5 +1,8 @@
 <template>
-  <div style="position: fixed;bottom: 52px;width: 100%;">
+  <div style="position: fixed;
+    bottom: 75px;
+    width: 100%;
+    height: 288px;">
     <v-emoji-picker
       @changeCategory="onCategoryChange"
       style="width: 100%;"
@@ -17,7 +20,7 @@
 </template>
 
 <script>
-import { baseFileUrl } from "@/utils/utils";
+import {baseFileUrl} from "@/utils/utils";
 
 export default {
   props: {
@@ -41,7 +44,7 @@ export default {
   mounted() {
     if (!this.showListMojiPackage) return;
     this.$Request_post(this.$AXIOS_URL + "/api/menes/getMenesList").then(
-      ({ data }) => {
+      ({data}) => {
         this.listMojiPackage = data;
       }
     );
@@ -72,6 +75,11 @@ export default {
 };
 </script>
 
+<style>
+.container-emoji {
+  height: 225px !important;
+}
+</style>
 <style lang="scss" scoped>
 /* 你可以在这里添加一些样式 */
 
@@ -92,6 +100,7 @@ export default {
     width: 90px;
     height: 90px;
     margin: 10px 10px 0 0;
+
     &:nth-child(4) {
       margin-right: 0;
     }

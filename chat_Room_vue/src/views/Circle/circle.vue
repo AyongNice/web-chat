@@ -142,7 +142,7 @@
         	时间：2020-10-19
         	描述：发布朋友圈
         -->
-    <redactCircle ref="redact"></redactCircle>
+    <redactCircle @onSuccess="onSuccess" ref="redact"></redactCircle>
     <div v-if="show" @click="onRemove" :style="{ position: 'absolute', left: x + 'px', top: y + 'px' }" class="popup">
       删除
     </div>
@@ -181,78 +181,84 @@ export default {
     };
   },
   computed: {},
-  async mounted() {
+  mounted() {
     console.log(this.$store.state.Friend_List);
     this.userInfos = JSON.parse(
       window.sessionStorage.getItem("userInfos") || "{}"
     );
 
-    //朋友圈
-    const {data} = await this.$Request_get(
-      this.$AXIOS_URL + "/api/circle/findByMeCircle",
-      this.pagePamras
-    )
-    data.list.forEach(_ => {
-      _.showPopover = false
-    })
-    const ids = data.list.map(_ => _.id).join(',');
-
-    //点赞信息查询
-    const lineListMap = {}
-    this.$Request_get(this.$AXIOS_URL + "/api/circle/findLike", {ids}).then(res => {
-      res.data.forEach(_ => {
-        if (lineListMap[_.circleId]) {
-          lineListMap[_.circleId].push({userId: _.userId, avatar: _.avatar})
-        } else {
-          lineListMap[_.circleId] = []
-          lineListMap[_.circleId].push({userId: _.userId, avatar: _.avatar})
-
-        }
-      })
-      //点赞 朋友圈信息合并
-      data.list.forEach(_ => _.linkeList = lineListMap[_.id] || [])
-      this.circleList = data.list;
-    }).catch(() => {
-      this.circleList = data.list;
-    })
-
-
-    //评论查询
-    const commentListMap = {}
-
-    function setComment(_) {
-      commentListMap[_.circleId].push({
-        "userId": _.userId,
-        "userName": _.userName,
-        "commentMessage": _.commentMessage,
-        "receiverId": _.receiverId,
-        "receiverName": _.receiverName,
-        id: _.id
-      })
-    }
-
-    this.$Request_get(this.$AXIOS_URL + "/api/circle/findComment", {ids}).then(res => {
-      res.data.forEach(_ => {
-        if (commentListMap[_.circleId]) {
-          setComment(_)
-        } else {
-          commentListMap[_.circleId] = []
-          setComment(_)
-
-        }
-      })
-      //点赞 朋友圈信息合并
-      data.list.forEach(_ => _.commentList = commentListMap[_.id] || [])
-      this.circleList = data.list;
-      this.$forceUpdate()
-      console.log(this.circleList);
-    }).catch(() => {
-      this.circleList = data.list;
-    })
-
-
+    this.init()
   },
   methods: {
+    async init() {
+
+      //朋友圈
+      const {data} = await this.$Request_get(
+        this.$AXIOS_URL + "/api/circle/findByMeCircle",
+        this.pagePamras
+      )
+      data.list.forEach(_ => {
+        _.showPopover = false
+      })
+      const ids = data.list.map(_ => _.id).join(',');
+
+      //点赞信息查询
+      const lineListMap = {}
+      this.$Request_get(this.$AXIOS_URL + "/api/circle/findLike", {ids}).then(res => {
+        res.data.forEach(_ => {
+          if (lineListMap[_.circleId]) {
+            lineListMap[_.circleId].push({userId: _.userId, avatar: _.avatar})
+          } else {
+            lineListMap[_.circleId] = []
+            lineListMap[_.circleId].push({userId: _.userId, avatar: _.avatar})
+
+          }
+        })
+        //点赞 朋友圈信息合并
+        data.list.forEach(_ => _.linkeList = lineListMap[_.id] || [])
+        this.circleList = data.list;
+      }).catch(() => {
+        this.circleList = data.list;
+      })
+
+
+      //评论查询
+      const commentListMap = {}
+
+      function setComment(_) {
+        commentListMap[_.circleId].push({
+          "userId": _.userId,
+          "userName": _.userName,
+          "commentMessage": _.commentMessage,
+          "receiverId": _.receiverId,
+          "receiverName": _.receiverName,
+          id: _.id
+        })
+      }
+
+      this.$Request_get(this.$AXIOS_URL + "/api/circle/findComment", {ids}).then(res => {
+        res.data.forEach(_ => {
+          if (commentListMap[_.circleId]) {
+            setComment(_)
+          } else {
+            commentListMap[_.circleId] = []
+            setComment(_)
+
+          }
+        })
+        //点赞 朋友圈信息合并
+        data.list.forEach(_ => _.commentList = commentListMap[_.id] || [])
+        this.circleList = data.list;
+        this.$forceUpdate()
+        console.log(this.circleList);
+      }).catch(() => {
+        this.circleList = data.list;
+      })
+    },
+    onSuccess() {
+      this.init()
+
+    },
     /**
      * 评论弹框
      * @param event
@@ -311,6 +317,7 @@ export default {
         this.$Request_post(this.$AXIOS_URL + "/api/circle/like", {
           circleId: this.selectItem.id,
           userId: this.userInfos.openId,
+          avatar: this.userInfos.avatar
         }).then(() => {
           if (!this.selectItem.linkeList) {
             this.selectItem.linkeList = []
@@ -429,6 +436,10 @@ export default {
 
 .van-field__word-limit {
   text-align: left !important;
+}
+
+.van-popup van-popover van-popover--light {
+  top: 0 !important;
 }
 </style>
 

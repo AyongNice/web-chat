@@ -502,7 +502,7 @@ export default {
     },
     async sendAudio() {
       if (this.audioBlob) {
-        console.log("上传录音");
+
 
         // 创建 FormData 对象，用于发送音频文件
         const formData = new FormData();
