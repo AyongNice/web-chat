@@ -6,17 +6,20 @@ web-chat 浏览器版本 好友聊天室
 2. 图片发送
 3. 语音发送
 
-![](https://files.mdnice.com/user/54733/65ae6f4e-8a08-4eb1-8e08-82d84399be3e.png){width=380 height=500}
+   <img src="https://files.mdnice.com/user/54733/65ae6f4e-8a08-4eb1-8e08-82d84399be3e.png" alt="图片描述" width="380" height="500">
+   
+ 
 
 ### 表情包
 1. 相当骚气的表情包 让你引临风骚
-![](https://files.mdnice.com/user/54733/e62884a8-ff6e-4418-aa8f-83ece535d78d.png){width=380 height=500}
+   <img src="https://files.mdnice.com/user/54733/e62884a8-ff6e-4418-aa8f-83ece535d78d.png" alt="图片描述" width="380" height="500">
+ 
 
 ### 胖友圈
 1. emoje文案
 2. 精选晒图
 3. 好友互动 评论、点赞
-![](https://files.mdnice.com/user/54733/f17aa55c-213c-4a77-8476-abf6c3a44ed1.png){width=380 height=500}
+      <img src="https://files.mdnice.com/user/54733/f17aa55c-213c-4a77-8476-abf6c3a44ed1.png" alt="图片描述" width="380" height="500">
 
 ### 技术栈介绍
 
