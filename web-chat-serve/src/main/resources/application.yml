@@ -22,7 +22,7 @@ spring:
 
 
 
-
+# jwt配置
 sky:
   jwt:
     # 设置jwt签名加密时使用的秘钥
@@ -37,14 +37,24 @@ sky:
 static:
   path: /Users/ayong/ayong-code/java/static/
 
+# 邮件配置 password指的是 你在 邮箱中开启 smtp 的授权码
 mail:
   host: smtp.163.com
   port: 465
   username: ayongnice@163.com
-  password: ''
+  password:
   properties:
     mail:
       smtp:
         auth: true
         starttls:
           enable: true
+
+# 拦截器白名单接口
+login-interceptor:
+  exclude-path-patterns:
+    - /admin/employee/login
+    - /login/**
+    - /image/**
+    - /email
+    - /register

@@ -18,6 +18,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         config.setApplicationDestinationPrefixes("/app");  // 客户端发送消息的前缀
     }
 
+
+    /**
+     * 要将前端服务启动地址 配置到这个类中 setAllowedOrigins
+     * @param registry
+     */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 注册 STOMP 端点，并使用 SockJS 作为回退
