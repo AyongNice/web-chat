@@ -6,7 +6,6 @@ import com.example.ayongchat.enitiy.Friends;
 import com.example.ayongchat.enitiy.GroupDto;
 import com.example.ayongchat.service.FriendsService;
 import com.example.loginsever.utlis.Result;
-import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.web.bind.annotation.*;

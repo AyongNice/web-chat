@@ -17,9 +17,8 @@ public class EmailController {
 
 
     @GetMapping("/email")
-    public Result<String> sendEmail(@Param("to") String to) {
+    public String sendEmail(@Param("to") String to) {
 
-        emailService.sendSimpleMail(to);
-        return Result.success(null, "发送成功");
+        return emailService.sendSimpleMail(to);
     }
 }

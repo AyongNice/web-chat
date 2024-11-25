@@ -34,7 +34,7 @@ public class EmailServiceImpl implements EmailService {
         }
         int randomNum = ThreadLocalRandom.current().nextInt(Constant.max, Constant.min + 1);
 
-        this.strRedisT.opsForValue().set("email:" + to, String.valueOf(randomNum), 300, TimeUnit.SECONDS);
+        this.strRedisT.opsForValue().set("email:" + to, String.valueOf(randomNum), 120, TimeUnit.SECONDS);
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);

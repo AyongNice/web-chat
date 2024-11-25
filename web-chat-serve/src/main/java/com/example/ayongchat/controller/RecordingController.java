@@ -1,21 +1,18 @@
 package com.example.ayongchat.controller;
 
 
-import com.example.ayongchat.enitiy.GroupDto;
 import com.example.ayongchat.enitiy.Message;
 import com.example.ayongchat.enitiy.RecordDto;
 import com.example.ayongchat.service.ChatService;
 import com.example.loginsever.constant.Static;
 import com.example.loginsever.utlis.Result;
 import com.github.pagehelper.PageInfo;
-import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.util.List;
 import java.util.Objects;
 
 /**
