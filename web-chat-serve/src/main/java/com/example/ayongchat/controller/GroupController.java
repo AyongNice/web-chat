@@ -56,7 +56,11 @@ public class GroupController {
      */
     @PostMapping("/removeFriends")
     public Result<String> deleteGroup(@RequestBody RemoveGroupUserDto removeGroupUserDto, @RequestHeader("Authorization") String authorization) {
-        groupService.deleteGroupUser(removeGroupUserDto, authorization, null, null);
+        /**
+         * 用户操作群组权限 切面会返回kopyList 集合
+         * 所以RestController层需要传null站位
+         */
+        groupService.deleteGroupUser(removeGroupUserDto, authorization, null);
         return Result.success();
     }
 
@@ -65,10 +69,14 @@ public class GroupController {
      */
     @PostMapping("/addGroupUser")
     public Result<String> addGroupUser(@RequestBody RemoveGroupUserDto removeGroupUserDto, @RequestHeader("Authorization") String authorization) {
-        groupService.addGroupUser(removeGroupUserDto, authorization, null, null);
+
+        /**
+         * 用户操作群组权限 切面会返回kopyList 集合 RestController层需要传null站位
+         * 所以RestController层需要传null站位
+         */
+        groupService.addGroupUser(removeGroupUserDto, authorization, null);
         return Result.success();
     }
-
 
 
 }

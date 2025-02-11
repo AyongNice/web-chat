@@ -17,6 +17,12 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+
+/**
+ * @author ayong
+ * @date 2023/03/08
+ * @description 群组用户权限切面 判断当前用户有无权限操作群组
+ */
 @Aspect
 @Component
 public class GroupUserAspect {
@@ -43,6 +49,9 @@ public class GroupUserAspect {
         }
 
         // 调用目标方法
-        method.invoke(joinPoint.getTarget(), args[0], args[1], groupInfo, new ArrayList<>(Arrays.asList(groupInfo.getList().split(","))));
+        /**
+         *  groupInfo.getList() 转为数组  多地方需要用到 所以在此切面同意转换
+         */
+        method.invoke(joinPoint.getTarget(), args[0], args[1],  new ArrayList<>(Arrays.asList(groupInfo.getList().split(","))));
     }
 }

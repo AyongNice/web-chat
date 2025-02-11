@@ -30,13 +30,14 @@ public class GroupServiceImpl implements GroupService {
      *
      * @param removeGroupUserDto 群好友信息
      * @param authorization      token
-     * @param groupInfo          群信息 由切面返回
+     * @param kopyList           群好友列表 由切面返回 用于处理
+     *
      */
     @Override
     @CheckGroupPermission
-    public void deleteGroupUser(RemoveGroupUserDto removeGroupUserDto, String authorization, GroupDto groupInfo, List<String> kopyList) {
+    public void deleteGroupUser(RemoveGroupUserDto removeGroupUserDto, String authorization,  List<String> kopyList) {
 
-        if (groupInfo == null || kopyList == null) return;
+        if (kopyList == null) return;
 
         List<String> openIdsToRemove = removeGroupUserDto.getOpenIds();
         kopyList.removeIf(openIdsToRemove::contains);
@@ -54,12 +55,12 @@ public class GroupServiceImpl implements GroupService {
      *
      * @param removeGroupUserDto 群好友信息
      * @param authorization      token
-     * @param groupInfo          群信息 由切面返回
+     * @param kopyList          群信息 由切面返回
      */
     @CheckGroupPermission
-    public void addGroupUser(RemoveGroupUserDto removeGroupUserDto, String authorization, GroupDto groupInfo, List<String> kopyList) {
+    public void addGroupUser(RemoveGroupUserDto removeGroupUserDto, String authorization, List<String> kopyList) {
 
-        if (groupInfo == null || kopyList == null) return;
+        if ( kopyList == null) return;
 
         kopyList.addAll(removeGroupUserDto.getOpenIds());
 
